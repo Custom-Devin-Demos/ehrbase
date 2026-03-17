@@ -72,6 +72,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> {
                     csrf.ignoringRequestMatchers(
                             antMatcher("/rest/**"), // allow full access to the rest api
+                            antMatcher("/fhir/**"), // allow full access to the FHIR api
                             antMatcher("/plugin/**"), // allow full access to plugin apis
                             antMatcher("/error/**") // ensure we have access to error re-routing
                             );

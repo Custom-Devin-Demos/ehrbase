@@ -21,6 +21,7 @@ import org.ehrbase.ServiceModuleConfiguration;
 import org.ehrbase.openehr.aqlengine.AqlEngineModuleConfiguration;
 import org.ehrbase.rest.RestModuleConfiguration;
 import org.ehrbase.rest.ehrscape.RestEHRScapeModuleConfiguration;
+import org.ehrbase.rest.fhir.RestFhirModuleConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -31,6 +32,7 @@ import org.springframework.context.annotation.Import;
     ServiceModuleConfiguration.class,
     RestModuleConfiguration.class,
     RestEHRScapeModuleConfiguration.class,
+    RestFhirModuleConfiguration.class,
     AqlEngineModuleConfiguration.class,
 })
 // @ComponentScan("org.ehrbase.configuration")

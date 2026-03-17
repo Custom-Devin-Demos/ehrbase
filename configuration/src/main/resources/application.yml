@@ -247,6 +247,11 @@ client:
 javamelody:
   enabled: false
 
+# FHIR Facade
+fhir:
+  facade:
+    enabled: false
+
 #  plugin configuration
 plugin-manager:
   plugin-dir: ./plugin_dir
