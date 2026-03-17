@@ -71,10 +71,7 @@ public class FhirCapabilityStatementProvider implements IServerConformanceProvid
         // Condition resource
         rest.addResource(buildResourceComponent("Condition", List.of(TypeRestfulInteraction.READ)));
 
-        // Bundle resource (system-level transaction/batch support)
-        rest.addResource(buildResourceComponent("Bundle", List.of(TypeRestfulInteraction.READ)));
-
-        // Declare transaction support at system level
+        // Bundle transaction/batch support is declared at system level below
         rest.addInteraction().setCode(SystemRestfulInteraction.TRANSACTION);
         rest.addInteraction().setCode(SystemRestfulInteraction.BATCH);
 
