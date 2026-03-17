@@ -88,6 +88,7 @@
         <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
         <java-jwt.version>3.19.4</java-jwt.version>
         <spring-tx-cache.version>1.0.5</spring-tx-cache.version>
+        <hapi-fhir.version>7.4.0</hapi-fhir.version>
 
         <!-- maven plugins -->
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
@@ -211,6 +212,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ehrbase.openehr</groupId>
+                <artifactId>rest-fhir</artifactId>
+                <version>${ehrbase.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ehrbase.openehr</groupId>
                 <artifactId>aql-engine</artifactId>
                 <classifier>tests</classifier>
                 <type>test-jar</type>
@@ -321,6 +327,16 @@
                 <groupId>com.ethlo.cache</groupId>
                 <artifactId>spring-tx-cache-decorator</artifactId>
                 <version>${spring-tx-cache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ca.uhn.hapi.fhir</groupId>
+                <artifactId>hapi-fhir-server</artifactId>
+                <version>${hapi-fhir.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ca.uhn.hapi.fhir</groupId>
+                <artifactId>hapi-fhir-structures-r4</artifactId>
+                <version>${hapi-fhir.version}</version>
             </dependency>
 
         </dependencies>
