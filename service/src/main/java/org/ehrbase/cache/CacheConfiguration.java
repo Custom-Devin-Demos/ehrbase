@@ -53,13 +53,16 @@ public class CacheConfiguration {
             Function<CacheProvider.EhrBaseCache<?, ?>, String> createCacheName) {
         cacheManager.registerCustomCache(
                 createCacheName.apply(CacheProvider.INTROSPECT_CACHE),
-                Caffeine.newBuilder().build());
+                configureCache(Caffeine.newBuilder(), cacheProperties.getIntrospectCacheConfig())
+                        .build());
         cacheManager.registerCustomCache(
                 createCacheName.apply(CacheProvider.TEMPLATE_UUID_ID_CACHE),
-                Caffeine.newBuilder().build());
+                configureCache(Caffeine.newBuilder(), cacheProperties.getTemplateUuidIdCacheConfig())
+                        .build());
         cacheManager.registerCustomCache(
                 createCacheName.apply(CacheProvider.TEMPLATE_ID_UUID_CACHE),
-                Caffeine.newBuilder().build());
+                configureCache(Caffeine.newBuilder(), cacheProperties.getTemplateIdUuidCacheConfig())
+                        .build());
         cacheManager.registerCustomCache(
                 createCacheName.apply(CacheProvider.USER_ID_CACHE),
                 configureCache(Caffeine.newBuilder(), cacheProperties.getUserIdCacheConfig())
@@ -70,7 +73,8 @@ public class CacheConfiguration {
                         .build());
         cacheManager.registerCustomCache(
                 createCacheName.apply(CacheProvider.STORED_QUERY_CACHE),
-                Caffeine.newBuilder().build());
+                configureCache(Caffeine.newBuilder(), cacheProperties.getStoredQueryCacheConfig())
+                        .build());
     }
 
     protected static Caffeine<Object, Object> configureCache(
@@ -86,6 +90,10 @@ public class CacheConfiguration {
             caffeine.expireAfterAccess(
                     cacheConfig.getExpireAfterAccess().getDuration(),
                     cacheConfig.getExpireAfterAccess().getUnit());
+        }
+
+        if (cacheConfig.getMaximumSize() != null) {
+            caffeine.maximumSize(cacheConfig.getMaximumSize());
         }
 
         return caffeine;

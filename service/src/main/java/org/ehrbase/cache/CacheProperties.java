@@ -52,8 +52,44 @@ public class CacheProperties {
         this.storedQueryInitOnStartup = storedQueryInitOnStartup;
     }
 
-    private CacheConfig externalFhirTerminologyCacheConfig = new CacheConfig();
+    private CacheConfig introspectCacheConfig = new CacheConfig();
+    private CacheConfig templateUuidIdCacheConfig = new CacheConfig();
+    private CacheConfig templateIdUuidCacheConfig = new CacheConfig();
     private CacheConfig userIdCacheConfig = new CacheConfig();
+    private CacheConfig externalFhirTerminologyCacheConfig = new CacheConfig();
+    private CacheConfig storedQueryCacheConfig = new CacheConfig();
+
+    public CacheConfig getIntrospectCacheConfig() {
+        return introspectCacheConfig;
+    }
+
+    public void setIntrospectCacheConfig(CacheConfig introspectCacheConfig) {
+        this.introspectCacheConfig = introspectCacheConfig;
+    }
+
+    public CacheConfig getTemplateUuidIdCacheConfig() {
+        return templateUuidIdCacheConfig;
+    }
+
+    public void setTemplateUuidIdCacheConfig(CacheConfig templateUuidIdCacheConfig) {
+        this.templateUuidIdCacheConfig = templateUuidIdCacheConfig;
+    }
+
+    public CacheConfig getTemplateIdUuidCacheConfig() {
+        return templateIdUuidCacheConfig;
+    }
+
+    public void setTemplateIdUuidCacheConfig(CacheConfig templateIdUuidCacheConfig) {
+        this.templateIdUuidCacheConfig = templateIdUuidCacheConfig;
+    }
+
+    public CacheConfig getUserIdCacheConfig() {
+        return userIdCacheConfig;
+    }
+
+    public void setUserIdCacheConfig(CacheConfig userIdCacheConfig) {
+        this.userIdCacheConfig = userIdCacheConfig;
+    }
 
     public CacheConfig getExternalFhirTerminologyCacheConfig() {
         return externalFhirTerminologyCacheConfig;
@@ -63,12 +99,12 @@ public class CacheProperties {
         this.externalFhirTerminologyCacheConfig = externalFhirTerminologyCacheConfig;
     }
 
-    public CacheConfig getUserIdCacheConfig() {
-        return userIdCacheConfig;
+    public CacheConfig getStoredQueryCacheConfig() {
+        return storedQueryCacheConfig;
     }
 
-    public void setUserIdCacheConfig(CacheConfig userIdCacheConfig) {
-        this.userIdCacheConfig = userIdCacheConfig;
+    public void setStoredQueryCacheConfig(CacheConfig storedQueryCacheConfig) {
+        this.storedQueryCacheConfig = storedQueryCacheConfig;
     }
 
     public List<String> getTxProxyExcludedBeanNames() {
@@ -81,8 +117,17 @@ public class CacheProperties {
 
     public static class CacheConfig {
 
+        private Long maximumSize;
         private ExpireTime expireAfterAccess;
         private ExpireTime expireAfterWrite;
+
+        public Long getMaximumSize() {
+            return maximumSize;
+        }
+
+        public void setMaximumSize(Long maximumSize) {
+            this.maximumSize = maximumSize;
+        }
 
         public ExpireTime getExpireAfterAccess() {
             return expireAfterAccess;

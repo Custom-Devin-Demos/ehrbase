@@ -130,14 +130,24 @@ httpclient:
 cache:
   template-init-on-startup: false
   stored-query-init-on-startup: false
+  introspect-cache-config:
+    maximum-size: 500
+  template-uuid-id-cache-config:
+    maximum-size: 2000
+  template-id-uuid-cache-config:
+    maximum-size: 2000
   user-id-cache-config:
+    maximum-size: 10000
     expire-after-access:
       duration: 300
       unit: SECONDS
   external-fhir-terminology-cache-config:
+    maximum-size: 500
     expire-after-write:
       duration: 300
       unit: SECONDS
+  stored-query-cache-config:
+    maximum-size: 1000
 
 openehr-api:
   context-path: /rest/openehr
