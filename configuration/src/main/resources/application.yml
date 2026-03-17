@@ -146,6 +146,11 @@ admin-api:
   allowDeleteAll: false
   context-path: /rest/admin
 
+# FHIR R4 Facade Configuration
+fhir:
+  facade:
+    enabled: false
+
 # Logging Properties
 logging:
   level:
