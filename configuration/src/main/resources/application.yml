@@ -243,6 +243,11 @@ client:
   ssl:
     enabled: false
 
+# FHIR Facade
+fhir:
+  facade:
+    enabled: false
+
 # JavaMelody
 javamelody:
   enabled: false

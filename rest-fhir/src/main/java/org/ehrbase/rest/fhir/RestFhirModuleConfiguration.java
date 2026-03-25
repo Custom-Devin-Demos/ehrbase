@@ -15,25 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ehrbase.configuration;
+package org.ehrbase.rest.fhir;
 
-import org.ehrbase.ServiceModuleConfiguration;
-import org.ehrbase.openehr.aqlengine.AqlEngineModuleConfiguration;
-import org.ehrbase.rest.RestModuleConfiguration;
-import org.ehrbase.rest.ehrscape.RestEHRScapeModuleConfiguration;
-import org.ehrbase.rest.fhir.RestFhirModuleConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 @Configuration
-@ComponentScan
-@Import({
-    ServiceModuleConfiguration.class,
-    RestModuleConfiguration.class,
-    RestEHRScapeModuleConfiguration.class,
-    RestFhirModuleConfiguration.class,
-    AqlEngineModuleConfiguration.class,
-})
-// @ComponentScan("org.ehrbase.configuration")
-public class EhrBaseServerConfiguration {}
+@ComponentScan(basePackages = "org.ehrbase.rest.fhir")
+@ConditionalOnProperty(prefix = "fhir.facade", name = "enabled", havingValue = "true", matchIfMissing = false)
+public class RestFhirModuleConfiguration {}
