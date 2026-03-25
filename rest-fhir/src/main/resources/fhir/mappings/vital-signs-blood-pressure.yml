@@ -1,0 +1,49 @@
+# Vital Signs Panel - Blood Pressure mapping
+# Maps between openEHR vital signs observation template and FHIR Observation
+templateId: "openEHR-EHR-COMPOSITION.health_summary.v1"
+fhirResourceType: "Observation"
+rmType: "OBSERVATION"
+description: "Vital Signs - Blood Pressure"
+profile: "http://hl7.org/fhir/StructureDefinition/vitalsigns"
+
+codingSystem: "http://loinc.org"
+codingCode: "85354-9"
+codingDisplay: "Blood pressure panel with all children optional"
+
+categorySystem: "http://terminology.hl7.org/CodeSystem/observation-category"
+categoryCode: "vital-signs"
+categoryDisplay: "Vital Signs"
+
+fieldMappings:
+  - archetypePath: "/content[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0004]"
+    fhirPath: "component[systolic]"
+    type: "Quantity"
+    unit: "mm[Hg]"
+    ucumUnit: "mm[Hg]"
+    required: true
+    coding:
+      system: "http://loinc.org"
+      code: "8480-6"
+      display: "Systolic blood pressure"
+
+  - archetypePath: "/content[openEHR-EHR-OBSERVATION.blood_pressure.v2]/data[at0001]/events[at0006]/data[at0003]/items[at0005]"
+    fhirPath: "component[diastolic]"
+    type: "Quantity"
+    unit: "mm[Hg]"
+    ucumUnit: "mm[Hg]"
+    required: true
+    coding:
+      system: "http://loinc.org"
+      code: "8462-4"
+      display: "Diastolic blood pressure"
+
+  - archetypePath: "/content[openEHR-EHR-OBSERVATION.pulse.v2]/data[at0002]/events[at0003]/data[at0001]/items[at0004]"
+    fhirPath: "component[heartRate]"
+    type: "Quantity"
+    unit: "/min"
+    ucumUnit: "/min"
+    required: false
+    coding:
+      system: "http://loinc.org"
+      code: "8867-4"
+      display: "Heart rate"

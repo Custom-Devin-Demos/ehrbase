@@ -78,6 +78,7 @@ public class EhrbaseFhirCapabilityStatementProvider implements IServerConformanc
         CapabilityStatement.CapabilityStatementRestResourceComponent resource = rest.addResource();
         resource.setType(resourceType);
         resource.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.READ);
+        resource.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.CREATE);
         resource.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.SEARCHTYPE);
     }
 }

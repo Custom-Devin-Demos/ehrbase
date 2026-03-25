@@ -1,0 +1,55 @@
+# Problem List / Diagnosis mapping
+# Maps between openEHR problem/diagnosis evaluation template and FHIR Condition
+templateId: "openEHR-EHR-COMPOSITION.problem_list.v2"
+fhirResourceType: "Condition"
+rmType: "EVALUATION"
+description: "Problem List - Problem/Diagnosis"
+profile: "http://hl7.org/fhir/StructureDefinition/Condition"
+
+codingSystem: "http://snomed.info/sct"
+codingCode: "439401001"
+codingDisplay: "Diagnosis"
+
+categorySystem: "http://terminology.hl7.org/CodeSystem/condition-category"
+categoryCode: "problem-list-item"
+categoryDisplay: "Problem List Item"
+
+fieldMappings:
+  - archetypePath: "/content[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0002]"
+    fhirPath: "code"
+    type: "CodeableConcept"
+    system: "http://snomed.info/sct"
+    required: true
+    coding:
+      system: "http://snomed.info/sct"
+      code: "439401001"
+      display: "Problem/Diagnosis name"
+
+  - archetypePath: "/content[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0012]"
+    fhirPath: "bodySite"
+    type: "CodeableConcept"
+    system: "http://snomed.info/sct"
+    required: false
+    coding:
+      system: "http://snomed.info/sct"
+      code: ""
+      display: "Body site"
+
+  - archetypePath: "/content[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0005]"
+    fhirPath: "severity"
+    type: "CodeableConcept"
+    system: "http://snomed.info/sct"
+    required: false
+    coding:
+      system: "http://snomed.info/sct"
+      code: ""
+      display: "Severity"
+
+  - archetypePath: "/content[openEHR-EHR-EVALUATION.problem_diagnosis.v1]/data[at0001]/items[at0077]"
+    fhirPath: "onsetDateTime"
+    type: "DateTime"
+    required: false
+    coding:
+      system: ""
+      code: ""
+      display: "Onset"
