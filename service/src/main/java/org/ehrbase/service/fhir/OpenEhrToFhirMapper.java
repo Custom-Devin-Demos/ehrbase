@@ -40,15 +40,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.hl7.fhir.r4.model.AllergyIntolerance;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.ClinicalImpression;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.DiagnosticReport;
 import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.MedicationRequest;
 import org.hl7.fhir.r4.model.MedicationStatement;
 import org.hl7.fhir.r4.model.Narrative;
+import org.hl7.fhir.r4.model.Procedure;
 import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
@@ -86,7 +90,9 @@ public class OpenEhrToFhirMapper {
         bundle.setId(UUID.randomUUID().toString());
 
         if (composition.getUid() != null) {
-            bundle.setId(composition.getUid().getValue());
+            String uidValue = composition.getUid().getValue();
+            int sepIdx = uidValue.indexOf("::");
+            bundle.setId(sepIdx >= 0 ? uidValue.substring(0, sepIdx) : uidValue);
         }
 
         // Map composition-level metadata to an Encounter if context is present
@@ -188,9 +194,16 @@ public class OpenEhrToFhirMapper {
             case "Observation" -> mapToObservation(entry);
             case "Condition" -> mapToCondition(entry);
             case "MedicationStatement" -> mapToMedicationStatement(entry);
+            case "MedicationRequest" -> mapToMedicationRequest(entry);
             case "DiagnosticReport" -> mapToDiagnosticReport(entry);
             case "Encounter" -> mapToEncounter(entry);
-            default -> mapToObservation(entry); // Safe default
+            case "Procedure" -> mapToProcedure(entry);
+            case "ClinicalImpression" -> mapToClinicalImpression(entry);
+            case "AllergyIntolerance" -> mapToAllergyIntolerance(entry);
+            default -> {
+                LOG.warn("Unmapped FHIR resource type '{}', falling back to Observation", fhirResourceType);
+                yield mapToObservation(entry);
+            }
         };
     }
 
@@ -275,6 +288,9 @@ public class OpenEhrToFhirMapper {
         Condition condition = new Condition();
         condition.setId(UUID.randomUUID().toString());
 
+        // Set a placeholder subject reference (required 1..1 in FHIR R4)
+        condition.setSubject(new Reference().setDisplay("Unknown"));
+
         // Map entry name to condition code
         if (entry.getName() != null) {
             condition.setCode(mapDvTextToCodeableConcept(entry.getName()));
@@ -314,12 +330,65 @@ public class OpenEhrToFhirMapper {
         MedicationStatement medStatement = new MedicationStatement();
         medStatement.setId(UUID.randomUUID().toString());
         medStatement.setStatus(MedicationStatement.MedicationStatementStatus.ACTIVE);
+        medStatement.setSubject(new Reference().setDisplay("Unknown"));
 
         if (entry.getName() != null) {
             medStatement.setMedication(mapDvTextToCodeableConcept(entry.getName()));
         }
 
         return medStatement;
+    }
+
+    private MedicationRequest mapToMedicationRequest(Entry entry) {
+        MedicationRequest medRequest = new MedicationRequest();
+        medRequest.setId(UUID.randomUUID().toString());
+        medRequest.setStatus(MedicationRequest.MedicationRequestStatus.ACTIVE);
+        medRequest.setIntent(MedicationRequest.MedicationRequestIntent.ORDER);
+        medRequest.setSubject(new Reference().setDisplay("Unknown"));
+
+        if (entry.getName() != null) {
+            medRequest.setMedication(mapDvTextToCodeableConcept(entry.getName()));
+        }
+
+        return medRequest;
+    }
+
+    private Procedure mapToProcedure(Entry entry) {
+        Procedure procedure = new Procedure();
+        procedure.setId(UUID.randomUUID().toString());
+        procedure.setStatus(Procedure.ProcedureStatus.COMPLETED);
+        procedure.setSubject(new Reference().setDisplay("Unknown"));
+
+        if (entry.getName() != null) {
+            procedure.setCode(mapDvTextToCodeableConcept(entry.getName()));
+        }
+
+        return procedure;
+    }
+
+    private ClinicalImpression mapToClinicalImpression(Entry entry) {
+        ClinicalImpression impression = new ClinicalImpression();
+        impression.setId(UUID.randomUUID().toString());
+        impression.setStatus(ClinicalImpression.ClinicalImpressionStatus.COMPLETED);
+        impression.setSubject(new Reference().setDisplay("Unknown"));
+
+        if (entry.getName() != null) {
+            impression.setDescription(entry.getName().getValue());
+        }
+
+        return impression;
+    }
+
+    private AllergyIntolerance mapToAllergyIntolerance(Entry entry) {
+        AllergyIntolerance allergy = new AllergyIntolerance();
+        allergy.setId(UUID.randomUUID().toString());
+        allergy.setPatient(new Reference().setDisplay("Unknown"));
+
+        if (entry.getName() != null) {
+            allergy.setCode(mapDvTextToCodeableConcept(entry.getName()));
+        }
+
+        return allergy;
     }
 
     private DiagnosticReport mapToDiagnosticReport(Entry entry) {

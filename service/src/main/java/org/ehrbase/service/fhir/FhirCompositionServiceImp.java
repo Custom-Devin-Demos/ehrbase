@@ -39,21 +39,25 @@ public class FhirCompositionServiceImp implements FhirCompositionService {
     private final FhirContext fhirContext;
     private final OpenEhrToFhirMapper mapper;
     private final FhirBundleValidator validator;
+    private final boolean validationEnabled;
 
     public FhirCompositionServiceImp() {
-        this.fhirContext = FhirContext.forR4();
-        FhirMappingConfig config = new FhirMappingConfig();
-        this.mapper = new OpenEhrToFhirMapper(config);
-        this.validator = new FhirBundleValidator(fhirContext);
+        this(FhirContext.forR4(), new FhirMappingConfig(), false);
     }
 
     /**
      * Constructor for dependency injection with custom configuration.
+     *
+     * @param fhirContext    the FHIR context
+     * @param mappingConfig  the mapping configuration
+     * @param enableValidation whether to run FHIR validation on every serialize() call
      */
-    public FhirCompositionServiceImp(FhirContext fhirContext, FhirMappingConfig mappingConfig) {
+    public FhirCompositionServiceImp(FhirContext fhirContext, FhirMappingConfig mappingConfig,
+                                     boolean enableValidation) {
         this.fhirContext = fhirContext;
         this.mapper = new OpenEhrToFhirMapper(mappingConfig);
         this.validator = new FhirBundleValidator(fhirContext);
+        this.validationEnabled = enableValidation;
     }
 
     @Override
@@ -69,12 +73,14 @@ public class FhirCompositionServiceImp implements FhirCompositionService {
         try {
             Bundle bundle = mapper.map(composition, templateId);
 
-            // Validate the produced bundle
-            FhirBundleValidator.FhirValidationOutcome outcome = validator.validate(bundle);
-            if (!outcome.valid()) {
-                LOG.warn(
-                        "Produced FHIR Bundle has validation issues: {}. Returning bundle anyway.",
-                        outcome.errorSummary());
+            // Validate the produced bundle only when validation is enabled
+            if (validationEnabled) {
+                FhirBundleValidator.FhirValidationOutcome outcome = validator.validate(bundle);
+                if (!outcome.valid()) {
+                    LOG.warn(
+                            "Produced FHIR Bundle has validation issues: {}. Returning bundle anyway.",
+                            outcome.errorSummary());
+                }
             }
 
             return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
