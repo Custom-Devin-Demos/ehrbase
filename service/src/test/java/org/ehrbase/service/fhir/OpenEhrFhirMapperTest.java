@@ -32,6 +32,7 @@ import com.nedap.archie.rm.datavalues.DvText;
 import com.nedap.archie.rm.datavalues.quantity.DvQuantity;
 import com.nedap.archie.rm.datavalues.quantity.datetime.DvDateTime;
 import com.nedap.archie.rm.generic.PartyIdentified;
+import com.nedap.archie.rm.generic.PartyProxy;
 import com.nedap.archie.rm.generic.PartySelf;
 import com.nedap.archie.rm.support.identification.ArchetypeID;
 import com.nedap.archie.rm.support.identification.TerminologyId;
@@ -95,6 +96,44 @@ class OpenEhrFhirMapperTest {
         Patient patient = (Patient) bundle.getEntry().get(0).getResource();
         assertThat(patient.getName()).isNotEmpty();
         assertThat(patient.getName().get(0).getText()).isEqualTo("Self");
+    }
+
+    @Test
+    void mapComposition_prefersEntrySubjectOverComposer() {
+        Composition composition = createMinimalComposition();
+        // Set composer to "Dr. Smith" (the author)
+        PartyIdentified composer = new PartyIdentified();
+        composer.setName("Dr. Smith");
+        composition.setComposer(composer);
+
+        // Add an observation with a named subject (the patient)
+        Observation obs = createObservationWithQuantity("Heart Rate", 72.0, "beats/min");
+        PartyIdentified patientSubject = new PartyIdentified();
+        patientSubject.setName("Jane Doe");
+        obs.setSubject(patientSubject);
+        composition.setContent(List.of(obs));
+
+        Bundle bundle = mapper.mapCompositionToBundle(composition);
+
+        // Patient should be derived from entry subject ("Jane Doe"), not composer ("Dr. Smith")
+        Patient patient = (Patient) bundle.getEntry().get(0).getResource();
+        assertThat(patient.getName()).isNotEmpty();
+        assertThat(patient.getName().get(0).getText()).isEqualTo("Jane Doe");
+    }
+
+    @Test
+    void mapComposition_fallsBackToComposer_whenNoEntrySubject() {
+        Composition composition = createMinimalComposition();
+        PartyIdentified composer = new PartyIdentified();
+        composer.setName("Dr. Smith");
+        composition.setComposer(composer);
+        // No content entries, so no entry subject to find
+
+        Bundle bundle = mapper.mapCompositionToBundle(composition);
+
+        Patient patient = (Patient) bundle.getEntry().get(0).getResource();
+        assertThat(patient.getName()).isNotEmpty();
+        assertThat(patient.getName().get(0).getText()).isEqualTo("Dr. Smith");
     }
 
     @Test

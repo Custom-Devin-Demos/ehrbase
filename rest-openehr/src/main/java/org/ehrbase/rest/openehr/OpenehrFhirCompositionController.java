@@ -20,8 +20,6 @@ package org.ehrbase.rest.openehr;
 import static org.ehrbase.api.rest.HttpRestContext.EHR_ID;
 import static org.ehrbase.api.rest.HttpRestContext.TEMPLATE_ID;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
 import com.nedap.archie.rm.composition.Composition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -74,7 +72,6 @@ public class OpenehrFhirCompositionController extends BaseController {
     private final CompositionService compositionService;
     private final FhirCompositionService fhirCompositionService;
     private final SystemService systemService;
-    private final FhirContext fhirContext;
 
     public OpenehrFhirCompositionController(
             CompositionService compositionService,
@@ -83,7 +80,6 @@ public class OpenehrFhirCompositionController extends BaseController {
         this.compositionService = Objects.requireNonNull(compositionService);
         this.fhirCompositionService = Objects.requireNonNull(fhirCompositionService);
         this.systemService = Objects.requireNonNull(systemService);
-        this.fhirContext = FhirContext.forR4();
     }
 
     /**
@@ -147,9 +143,8 @@ public class OpenehrFhirCompositionController extends BaseController {
             outcomeEntry.setResource(outcome);
         }
 
-        // Serialize to FHIR JSON
-        IParser jsonParser = fhirContext.newJsonParser().setPrettyPrint(true);
-        String fhirJson = jsonParser.encodeResourceToString(bundle);
+        // Serialize to FHIR JSON using the service's shared FhirContext
+        String fhirJson = fhirCompositionService.serializeBundleToJson(bundle);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_TYPE, APPLICATION_FHIR_JSON);

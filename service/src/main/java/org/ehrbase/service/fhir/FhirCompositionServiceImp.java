@@ -65,6 +65,11 @@ public class FhirCompositionServiceImp implements FhirCompositionService {
     @Override
     public String serializeToFhirJson(Composition composition) {
         Bundle bundle = toFhirBundle(composition);
+        return serializeBundleToJson(bundle);
+    }
+
+    @Override
+    public String serializeBundleToJson(Bundle bundle) {
         IParser jsonParser = fhirContext.newJsonParser().setPrettyPrint(true);
         return jsonParser.encodeResourceToString(bundle);
     }

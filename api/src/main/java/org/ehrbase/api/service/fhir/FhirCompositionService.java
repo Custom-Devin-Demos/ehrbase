@@ -52,6 +52,14 @@ public interface FhirCompositionService {
     String serializeToFhirJson(Composition composition);
 
     /**
+     * Serializes a FHIR R4 {@link Bundle} to a pretty-printed JSON string.
+     *
+     * @param bundle the FHIR R4 Bundle to serialize
+     * @return a JSON string representing the Bundle
+     */
+    String serializeBundleToJson(Bundle bundle);
+
+    /**
      * Validates a FHIR R4 {@link Bundle} against the FHIR R4 specification.
      *
      * @param bundle the FHIR R4 Bundle to validate

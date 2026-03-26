@@ -19,6 +19,7 @@ package org.ehrbase.service.fhir;
 
 import com.nedap.archie.rm.composition.Action;
 import com.nedap.archie.rm.composition.AdminEntry;
+import com.nedap.archie.rm.composition.CareEntry;
 import com.nedap.archie.rm.composition.Composition;
 import com.nedap.archie.rm.composition.ContentItem;
 import com.nedap.archie.rm.composition.Entry;
@@ -80,8 +81,9 @@ import org.slf4j.LoggerFactory;
  * DvDateTime, etc.) are converted to their FHIR equivalents (Quantity, CodeableConcept,
  * DateTimeType, etc.).
  *
- * <p>A {@link Patient} resource is derived from the composition's subject (composer/subject) and
- * included as the first entry in the Bundle to provide patient context for all other resources.
+ * <p>A {@link Patient} resource is derived from the composition's entry subjects (via
+ * {@code Entry.getSubject()}) with a fallback to the composition's composer, and included as the
+ * first entry in the Bundle to provide patient context for all other resources.
  */
 public class OpenEhrFhirMapper {
 
@@ -488,13 +490,26 @@ public class OpenEhrFhirMapper {
     // ---- Helper methods ----
 
     /**
-     * Extracts a FHIR Patient resource from the composition's subject/composer.
+     * Extracts a FHIR Patient resource from the composition.
+     *
+     * <p>In openEHR, the <em>subject</em> of each {@link Entry} represents the patient the record
+     * is about, while {@code Composition.getComposer()} identifies the healthcare provider who
+     * authored the record. This method first searches the composition's content entries for a
+     * subject that is a {@link PartyIdentified} (i.e. the actual patient). If no such subject is
+     * found, it falls back to the composer as a best-effort default.
      */
     Patient extractPatient(Composition composition) {
         Patient patient = new Patient();
         patient.setId(UUID.randomUUID().toString());
 
-        PartyProxy subject = composition.getComposer();
+        // First try to extract patient from entry subjects (the actual patient)
+        PartyProxy subject = findEntrySubject(composition);
+
+        // Fall back to composer only if no entry subject is available
+        if (subject == null) {
+            subject = composition.getComposer();
+        }
+
         if (subject instanceof PartyIdentified partyIdentified) {
             if (partyIdentified.getName() != null) {
                 patient.addName().setText(partyIdentified.getName());
@@ -520,6 +535,41 @@ public class OpenEhrFhirMapper {
         patient.setText(narrative);
 
         return patient;
+    }
+
+    /**
+     * Searches the composition's content entries for the first non-null, non-PartySelf subject.
+     * In openEHR, each {@link Entry} carries a {@code subject} field that represents the patient
+     * the clinical data is about. Returns {@code null} if no suitable subject is found.
+     */
+    private PartyProxy findEntrySubject(Composition composition) {
+        if (composition.getContent() == null) {
+            return null;
+        }
+        for (ContentItem item : composition.getContent()) {
+            PartyProxy found = findEntrySubjectInContent(item);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
+    }
+
+    private PartyProxy findEntrySubjectInContent(ContentItem contentItem) {
+        if (contentItem instanceof Entry entry) {
+            PartyProxy subject = entry.getSubject();
+            if (subject != null && !(subject instanceof PartySelf)) {
+                return subject;
+            }
+        } else if (contentItem instanceof Section section && section.getItems() != null) {
+            for (ContentItem nested : section.getItems()) {
+                PartyProxy found = findEntrySubjectInContent(nested);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     /**
