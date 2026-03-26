@@ -88,6 +88,7 @@
         <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
         <java-jwt.version>3.19.4</java-jwt.version>
         <spring-tx-cache.version>1.0.5</spring-tx-cache.version>
+        <hapi-fhir.version>6.10.5</hapi-fhir.version>
 
         <!-- maven plugins -->
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
@@ -321,6 +322,34 @@
                 <groupId>com.ethlo.cache</groupId>
                 <artifactId>spring-tx-cache-decorator</artifactId>
                 <version>${spring-tx-cache.version}</version>
+            </dependency>
+
+            <!-- HAPI FHIR R4 -->
+            <dependency>
+                <groupId>ca.uhn.hapi.fhir</groupId>
+                <artifactId>hapi-fhir-base</artifactId>
+                <version>${hapi-fhir.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ca.uhn.hapi.fhir</groupId>
+                <artifactId>hapi-fhir-structures-r4</artifactId>
+                <version>${hapi-fhir.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>jcl-over-slf4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>ca.uhn.hapi.fhir</groupId>
+                <artifactId>hapi-fhir-validation</artifactId>
+                <version>${hapi-fhir.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ca.uhn.hapi.fhir</groupId>
+                <artifactId>hapi-fhir-validation-resources-r4</artifactId>
+                <version>${hapi-fhir.version}</version>
             </dependency>
 
         </dependencies>
