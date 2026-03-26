@@ -135,6 +135,6 @@ public class PatientFhirMapper {
                 .orElseGet(() -> patient.getIdentifier().stream()
                         .filter(id -> !EHR_SYSTEM.equals(id.getSystem()))
                         .findFirst()
-                        .orElse(patient.getIdentifierFirstRep()));
+                        .orElse(null));
     }
 }

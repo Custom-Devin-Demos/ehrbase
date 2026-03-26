@@ -258,7 +258,9 @@ public class ConditionFhirMapper {
                             if (el.getValue() instanceof DvCodedText dvCoded) {
                                 condition.setCode(new CodeableConcept()
                                         .addCoding(new Coding()
-                                                .setSystem(SNOMED_SYSTEM)
+                                                .setSystem(dvCoded.getDefiningCode()
+                                                        .getTerminologyId()
+                                                        .getValue())
                                                 .setCode(dvCoded
                                                         .getDefiningCode()
                                                         .getCodeString())

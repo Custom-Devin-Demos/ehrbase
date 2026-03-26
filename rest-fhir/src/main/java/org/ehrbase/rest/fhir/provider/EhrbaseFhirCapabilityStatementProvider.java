@@ -66,19 +66,24 @@ public class EhrbaseFhirCapabilityStatementProvider implements IServerConformanc
         CapabilityStatement.CapabilityStatementRestComponent rest = cs.addRest();
         rest.setMode(CapabilityStatement.RestfulCapabilityMode.SERVER);
 
-        addResourceComponent(rest, Patient.class.getSimpleName());
-        addResourceComponent(rest, Observation.class.getSimpleName());
-        addResourceComponent(rest, Condition.class.getSimpleName());
-        addResourceComponent(rest, Bundle.class.getSimpleName());
+        addResourceComponent(rest, Patient.class.getSimpleName(), true);
+        addResourceComponent(rest, Observation.class.getSimpleName(), true);
+        addResourceComponent(rest, Condition.class.getSimpleName(), true);
+        addResourceComponent(rest, Bundle.class.getSimpleName(), false);
 
         return cs;
     }
 
-    private void addResourceComponent(CapabilityStatement.CapabilityStatementRestComponent rest, String resourceType) {
+    private void addResourceComponent(
+            CapabilityStatement.CapabilityStatementRestComponent rest,
+            String resourceType,
+            boolean supportsCreate) {
         CapabilityStatement.CapabilityStatementRestResourceComponent resource = rest.addResource();
         resource.setType(resourceType);
         resource.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.READ);
-        resource.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.CREATE);
+        if (supportsCreate) {
+            resource.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.CREATE);
+        }
         resource.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.SEARCHTYPE);
     }
 }

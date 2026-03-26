@@ -251,14 +251,18 @@ public class ObservationFhirMapper {
                 component.setValue(fhirQuantity);
                 fhirObs.addComponent(component);
             }
-        } else if ("CodeableConcept".equals(fieldMapping.getType())
-                && element.getValue() instanceof DvCodedText dvCodedText) {
+        } else if ("CodeableConcept".equals(fieldMapping.getType())) {
             CodeableConcept concept = new CodeableConcept();
             String system = fieldMapping.getSystem() != null ? fieldMapping.getSystem() : SNOMED_SYSTEM;
-            concept.addCoding(new Coding()
-                    .setSystem(system)
-                    .setCode(dvCodedText.getDefiningCode().getCodeString())
-                    .setDisplay(dvCodedText.getValue()));
+
+            if (element.getValue() instanceof DvCodedText dvCodedText) {
+                concept.addCoding(new Coding()
+                        .setSystem(system)
+                        .setCode(dvCodedText.getDefiningCode().getCodeString())
+                        .setDisplay(dvCodedText.getValue()));
+            } else if (element.getValue() instanceof DvText dvText) {
+                concept.setText(dvText.getValue());
+            }
 
             if ("valueCodeableConcept".equals(fhirPath)) {
                 fhirObs.setValue(concept);
