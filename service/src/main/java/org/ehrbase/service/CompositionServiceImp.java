@@ -61,8 +61,11 @@ import org.ehrbase.openehr.sdk.webtemplate.model.WebTemplate;
 import org.ehrbase.openehr.sdk.webtemplate.templateprovider.TemplateProvider;
 import org.ehrbase.repository.CompositionRepository;
 import org.ehrbase.repository.experimental.ItemTagRepository;
+import org.ehrbase.service.fhir.FhirOutputFormat;
+import org.ehrbase.service.fhir.OpenEhrToFhirMapper;
 import org.ehrbase.util.SemVer;
 import org.ehrbase.util.UuidGenerator;
+import org.hl7.fhir.r4.model.Bundle;
 import org.openehr.schemas.v1.OPERATIONALTEMPLATE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -443,6 +446,14 @@ public class CompositionServiceImp implements CompositionService {
                 throw new UnexpectedSwitchCaseException(format);
         }
         return new StructuredString(marshalled, stringFormat);
+    }
+
+    @Override
+    public String serializeToFhir(Composition composition, boolean fhirJson) {
+        OpenEhrToFhirMapper mapper = new OpenEhrToFhirMapper(createTemplateProvider());
+        Bundle bundle = mapper.mapCompositionToBundle(composition);
+        FhirOutputFormat outputFormat = fhirJson ? FhirOutputFormat.FHIR_JSON : FhirOutputFormat.FHIR_XML;
+        return mapper.serializeBundle(bundle, outputFormat);
     }
 
     public Composition buildComposition(String content, CompositionFormat format, String templateId) {

@@ -51,6 +51,26 @@ public interface CompositionService extends VersionedObjectService<Composition, 
     StructuredString serialize(Composition composition, CompositionFormat format);
 
     /**
+     * Serializes an openEHR {@link Composition} into a FHIR R4 Bundle and returns the result as
+     * a JSON or XML string. This is a dedicated FHIR serialization path alongside the existing
+     * openEHR canonical formats (XML, JSON, FLAT, STRUCTURED).
+     *
+     * <p>The transformation maps openEHR RM entry types to FHIR R4 resources:
+     * <ul>
+     *   <li>Observation &rarr; FHIR Observation</li>
+     *   <li>Evaluation &rarr; FHIR Condition</li>
+     *   <li>Instruction &rarr; FHIR MedicationStatement</li>
+     *   <li>Action &rarr; FHIR Procedure</li>
+     *   <li>AdminEntry &rarr; FHIR Observation (generic)</li>
+     * </ul>
+     *
+     * @param composition the openEHR Composition to transform
+     * @param fhirJson    if {@code true}, output FHIR JSON; if {@code false}, output FHIR XML
+     * @return the serialized FHIR R4 Bundle string
+     */
+    String serializeToFhir(Composition composition, boolean fhirJson);
+
+    /**
      * Retrieve the latest version number for the given composition ID.
      *
      * @param compositionId   The {@link UUID} of the composition to be returned.
