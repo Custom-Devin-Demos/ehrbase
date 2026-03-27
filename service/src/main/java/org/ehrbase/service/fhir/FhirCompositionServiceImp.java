@@ -85,10 +85,10 @@ public class FhirCompositionServiceImp implements FhirCompositionService {
         for (SingleValidationMessage message : messages) {
             OperationOutcome.IssueSeverity severity =
                     switch (message.getSeverity()) {
+                        case FATAL -> OperationOutcome.IssueSeverity.FATAL;
                         case ERROR -> OperationOutcome.IssueSeverity.ERROR;
                         case WARNING -> OperationOutcome.IssueSeverity.WARNING;
                         case INFORMATION -> OperationOutcome.IssueSeverity.INFORMATION;
-                        default -> OperationOutcome.IssueSeverity.INFORMATION;
                     };
 
             outcome.addIssue()
