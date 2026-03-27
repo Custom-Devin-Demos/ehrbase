@@ -66,6 +66,14 @@
             <groupId>com.nedap.healthcare.archie</groupId>
             <artifactId>openehr-rm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-structures-r4</artifactId>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>
