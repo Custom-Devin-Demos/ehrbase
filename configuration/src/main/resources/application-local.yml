@@ -17,11 +17,11 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/ehrbase
     username: ehrbase_restricted
-    password: ehrbase_restricted
+    password: ${DB_PASS:ehrbase_restricted}
   flyway:
     schemas: ehr
     user: ehrbase
-    password: ehrbase
+    password: ${DB_PASS_ADMIN:ehrbase}
 
 security:
   authType: NONE
