@@ -86,12 +86,12 @@ The Basic Auth mechanism is implemented as "opt-in" and can be activated either 
 `SECURITY_AUTHTYPE=BASIC` with the start command or by adding the value into the target application.yml file.
 
 Currently we have support one user with password which can be set via environment variables `SECURITY_AUTHUSER` and
-`SECURITY_AUTHPASSWORD`. By default these values are set with `ehrbase-user` and `authPassword=SuperSecretPassword`
-and can be overridden by environment values. Alternatively you can set them inside the corresponding application.yml
-file.
+`SECURITY_AUTHPASSWORD`. The default username is `ehrbase-user`. The password must be provided via the
+`SECURITY_AUTHPASSWORD` environment variable (see `.env.ehrbase` for an example).
 
-The same applies to the *admin* user, via `SECURITY_AUTHADMINUSER`, `SECURITY_AUTHADMINPASSWORD`
-and their default values of `ehrbase-admin` and `EvenMoreSecretPassword`.
+The same applies to the *admin* user, via `SECURITY_AUTHADMINUSER`, `SECURITY_AUTHADMINPASSWORD`.
+The default admin username is `ehrbase-admin`. The admin password must be provided via the
+`SECURITY_AUTHADMINPASSWORD` environment variable.
 
 #### 2. OAuth2
 

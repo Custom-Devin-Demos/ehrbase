@@ -1,16 +1,16 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/ehrbase
-    username: ehrbase_restricted
-    password: ehrbase_restricted
+    username: ${DB_USER:ehrbase_restricted}
+    password: ${DB_PASS}
     hikari:
       maximum-pool-size: 50
       max-lifetime: 1800000
       minimum-idle: 10
   flyway:
     schemas: ehr
-    user: ehrbase
-    password: ehrbase
+    user: ${DB_USER_ADMIN:ehrbase}
+    password: ${DB_PASS_ADMIN}
 
 security:
   authType: NONE
