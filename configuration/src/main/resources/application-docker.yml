@@ -29,3 +29,5 @@ spring:
     password: ${DB_PASS_ADMIN}
 security:
   authType: NONE
+  authPassword: not-set
+  authAdminPassword: not-set
