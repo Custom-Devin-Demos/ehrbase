@@ -64,7 +64,7 @@ spring:
     ehr-strategy: MIGRATE
     ext-strategy: MIGRATE
     user: ehrbase
-    password: ehrbase
+    password: ${DB_PASS_ADMIN:ehrbase}
 
   jooq:
     sql-dialect: POSTGRES
@@ -75,9 +75,9 @@ spring:
 security:
   authType: BASIC
   authUser: ehrbase-user
-  authPassword: SuperSecretPassword
+  authPassword: ${SECURITY_AUTHPASSWORD}
   authAdminUser: ehrbase-admin
-  authAdminPassword: EvenMoreSecretPassword
+  authAdminPassword: ${SECURITY_AUTHADMINPASSWORD}
   oauth2UserRole: USER
   oauth2AdminRole: ADMIN
 
