@@ -25,6 +25,8 @@ spring:
 
 security:
   authType: NONE
+  authPassword: not-set
+  authAdminPassword: not-set
 
 #use admin for cleaning up the db during tests
 admin-api:

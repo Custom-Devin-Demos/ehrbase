@@ -14,5 +14,7 @@ spring:
 
 security:
   authType: NONE
+  authPassword: not-set
+  authAdminPassword: not-set
 
 
