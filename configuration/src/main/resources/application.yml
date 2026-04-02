@@ -75,9 +75,9 @@ spring:
 security:
   authType: BASIC
   authUser: ${SECURITY_AUTHUSER:ehrbase-user}
-  authPassword: ${SECURITY_AUTHPASSWORD}
+  authPassword: ${SECURITY_AUTHPASSWORD:}
   authAdminUser: ${SECURITY_AUTHADMINUSER:ehrbase-admin}
-  authAdminPassword: ${SECURITY_AUTHADMINPASSWORD}
+  authAdminPassword: ${SECURITY_AUTHADMINPASSWORD:}
   oauth2UserRole: USER
   oauth2AdminRole: ADMIN
 
