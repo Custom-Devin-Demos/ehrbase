@@ -21,7 +21,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 
 import jakarta.servlet.DispatcherType;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
