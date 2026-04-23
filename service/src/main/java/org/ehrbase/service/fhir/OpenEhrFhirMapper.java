@@ -492,8 +492,9 @@ public class OpenEhrFhirMapper {
             return Optional.empty();
         }
         return config.getMappings().stream()
-                .filter(m -> archetypeNodeId.equals(m.getArchetypeNodeId())
-                        || archetypeNodeId.contains(m.getArchetypeNodeId()))
+                .filter(m -> m.getArchetypeNodeId() != null
+                        && (archetypeNodeId.equals(m.getArchetypeNodeId())
+                                || archetypeNodeId.contains(m.getArchetypeNodeId())))
                 .findFirst();
     }
 

@@ -87,6 +87,10 @@ public class OpenehrFhirController extends BaseController implements FhirExportA
                 .orElseGet(() -> getVersionByTimestamp(versionAtTime, compositionUid)
                         .orElseGet(() -> compositionService.getLastVersionNumber(ehrId, compositionUid)));
 
+        if (compositionService.isDeleted(ehrId, compositionUid, version)) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
         Composition composition = compositionService
                 .retrieve(ehrId, compositionUid, version)
                 .orElseThrow(() -> new ObjectNotFoundException(
