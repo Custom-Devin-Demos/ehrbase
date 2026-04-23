@@ -427,12 +427,14 @@ curl -s http://staging:8080/ehrbase/rest/openehr/v1/definition/template/adl1.4 \
 ### Post-Migration
 
 - [ ] Run all [verification queries](#verification-queries)
-- [ ] Start application instances with `VALIDATE` strategy for initial restart:
-  ```yaml
-  spring:
-    flyway:
-      ehr-strategy: VALIDATE
-      ext-strategy: VALIDATE
+- [ ] Start application instances with `VALIDATE` strategy for initial restart.
+  **Important:** The `post-migrate` profile must be combined with a datasource profile:
+  ```bash
+  # Option A: Combine post-migrate with your environment profile
+  java -jar ehrbase.jar --spring.profiles.active=docker,post-migrate
+
+  # Option B: Set strategy via environment variables
+  SPRING_FLYWAY_EHR_STRATEGY=VALIDATE SPRING_FLYWAY_EXT_STRATEGY=VALIDATE java -jar ehrbase.jar
   ```
 - [ ] Verify application health: `GET /ehrbase/management/health`
 - [ ] Verify API functionality with smoke tests
