@@ -237,6 +237,12 @@ validation:
     #     # request-timeout: 30S # 30 Seconds default
     #     type: FHIR
     #     url: https://r4.ontoserver.csiro.au/fhir/
+    #   phir:
+    #     # If set it must match a spring.security.oauth2.registration.[oauth2-client] that needs to be configured
+    #     # oauth2-client: 'phir-terminology-client'
+    #     # request-timeout: 30S # 30 Seconds default
+    #     type: PHIR
+    #     url: https://example.phir-server.org/api/
 
 # SSL Properties (used by Spring WebClient and Apache HTTP Client)
 client:
