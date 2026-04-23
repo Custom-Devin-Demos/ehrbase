@@ -39,8 +39,9 @@ import java.util.Set;
  *   <li>{@code //phir.cdc.gov} — protocol-relative authority for the CDC PHIR endpoint.
  *   <li>{@code terminology://phir.cdc.gov} — openEHR-style terminology service-api identifier
  *       pointing at the CDC PHIR authority.
- *   <li>{@code https://phir.cdc.gov/} / {@code http://phir.cdc.gov/} — absolute HTTP(S) URLs
- *       rooted at the CDC PHIR authority.
+ *   <li>{@code https://phir.cdc.gov} / {@code http://phir.cdc.gov} — absolute HTTP(S) URLs
+ *       rooted at the CDC PHIR authority (matched without a trailing slash so both the bare
+ *       authority and sub-paths are accepted).
  * </ul>
  *
  * <p>Step 1 of the PHIR integration (the {@code PhirTerminologyValidation} class) is expected to
@@ -73,8 +74,8 @@ public final class PhirTerminologyUrlValidator {
             // materials.
             "//phir.cdc.gov",
             "terminology://phir.cdc.gov",
-            "https://phir.cdc.gov/",
-            "http://phir.cdc.gov/");
+            "https://phir.cdc.gov",
+            "http://phir.cdc.gov");
 
     private PhirTerminologyUrlValidator() {
         // utility class — not instantiable

@@ -36,7 +36,9 @@ class PhirTerminologyUrlValidatorTest {
         assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("//phir.cdc.gov"));
         assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("//phir.cdc.gov/CodeSystem?url=urn:oid:1.2.3"));
         assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("terminology://phir.cdc.gov"));
+        assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("https://phir.cdc.gov"));
         assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("https://phir.cdc.gov/ValueSet/$expand"));
+        assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("http://phir.cdc.gov"));
         assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("http://phir.cdc.gov/"));
     }
 
