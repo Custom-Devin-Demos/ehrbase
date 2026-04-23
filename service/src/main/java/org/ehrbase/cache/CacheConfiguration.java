@@ -69,6 +69,10 @@ public class CacheConfiguration {
                 configureCache(Caffeine.newBuilder(), cacheProperties.getExternalFhirTerminologyCacheConfig())
                         .build());
         cacheManager.registerCustomCache(
+                createCacheName.apply(CacheProvider.EXTERNAL_PHIR_TERMINOLOGY_CACHE),
+                configureCache(Caffeine.newBuilder(), cacheProperties.getExternalPhirTerminologyCacheConfig())
+                        .build());
+        cacheManager.registerCustomCache(
                 createCacheName.apply(CacheProvider.STORED_QUERY_CACHE),
                 Caffeine.newBuilder().build());
     }
