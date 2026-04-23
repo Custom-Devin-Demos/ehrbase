@@ -33,6 +33,8 @@ public interface CacheProvider {
     EhrBaseCache<String, UUID> USER_ID_CACHE = new EhrBaseCache<>("userIdCache");
     EhrBaseCache<String, DocumentContext> EXTERNAL_FHIR_TERMINOLOGY_CACHE =
             new EhrBaseCache<>("externalFhirTerminologyCache");
+    EhrBaseCache<String, DocumentContext> EXTERNAL_PHIR_TERMINOLOGY_CACHE =
+            new EhrBaseCache<>("externalPhirTerminologyCache");
     EhrBaseCache<String, QueryDefinitionResultDto> STORED_QUERY_CACHE = new EhrBaseCache<>("StoredQueryCache");
 
     static Supplier<InternalServerException> getExceptionSupplier(EhrBaseCache<?, ?> cache) {

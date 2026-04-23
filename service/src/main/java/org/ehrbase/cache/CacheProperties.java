@@ -53,6 +53,7 @@ public class CacheProperties {
     }
 
     private CacheConfig externalFhirTerminologyCacheConfig = new CacheConfig();
+    private CacheConfig externalPhirTerminologyCacheConfig = new CacheConfig();
     private CacheConfig userIdCacheConfig = new CacheConfig();
 
     public CacheConfig getExternalFhirTerminologyCacheConfig() {
@@ -61,6 +62,14 @@ public class CacheProperties {
 
     public void setExternalFhirTerminologyCacheConfig(CacheConfig externalFhirTerminologyCacheConfig) {
         this.externalFhirTerminologyCacheConfig = externalFhirTerminologyCacheConfig;
+    }
+
+    public CacheConfig getExternalPhirTerminologyCacheConfig() {
+        return externalPhirTerminologyCacheConfig;
+    }
+
+    public void setExternalPhirTerminologyCacheConfig(CacheConfig externalPhirTerminologyCacheConfig) {
+        this.externalPhirTerminologyCacheConfig = externalPhirTerminologyCacheConfig;
     }
 
     public CacheConfig getUserIdCacheConfig() {

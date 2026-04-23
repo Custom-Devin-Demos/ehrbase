@@ -26,6 +26,7 @@ import org.ehrbase.cache.CacheProvider;
 import org.ehrbase.openehr.sdk.validation.terminology.ExternalTerminologyValidation;
 import org.ehrbase.openehr.sdk.validation.terminology.ExternalTerminologyValidationChain;
 import org.ehrbase.service.validation.FhirTerminologyValidation;
+import org.ehrbase.service.validation.PhirTerminologyValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -104,6 +105,8 @@ public class ValidationConfiguration {
 
         if (provider.getType() == ExternalValidationProperties.ProviderType.FHIR) {
             return fhirTerminologyValidation(provider.getUrl(), webClient);
+        } else if (provider.getType() == ExternalValidationProperties.ProviderType.PHIR) {
+            return phirTerminologyValidation(provider.getUrl(), webClient);
         }
         throw new IllegalArgumentException("Invalid provider type: " + provider.getType());
     }
@@ -147,6 +150,30 @@ public class ValidationConfiguration {
                     } else {
                         throw new InternalServerException(
                                 "Failure during fhir terminology request: %s".formatted(cause.getMessage()), cause);
+                    }
+                }
+            }
+        };
+    }
+
+    private PhirTerminologyValidation phirTerminologyValidation(String url, WebClient webClient) {
+        return new PhirTerminologyValidation(url, properties.isFailOnError(), webClient) {
+
+            @Override
+            protected DocumentContext internalGet(String uri) throws WebClientException {
+                try {
+                    return CacheProvider.EXTERNAL_PHIR_TERMINOLOGY_CACHE.get(
+                            cacheProvider, uri, () -> super.internalGet(uri));
+                } catch (Cache.ValueRetrievalException e) {
+                    final Throwable cause = e.getCause();
+                    // Something went wrong during downstream request - Forward as bad Gateway. We could also catch
+                    // WebClientResponseException and add our own error message. The WebClientException happens also
+                    // in case the connection is refused or the DNS lookup fails.
+                    if (cause instanceof WebClientException) {
+                        throw new BadGatewayException(cause.getMessage(), cause);
+                    } else {
+                        throw new InternalServerException(
+                                "Failure during phir terminology request: %s".formatted(cause.getMessage()), cause);
                     }
                 }
             }
