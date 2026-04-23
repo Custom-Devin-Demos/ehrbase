@@ -17,6 +17,7 @@
  */
 package org.ehrbase.service.validation;
 
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -86,9 +87,15 @@ public final class PhirTerminologyUrlValidator {
      *
      * <p>The check is a case-insensitive prefix match against {@link #ACCEPTED_PHIR_SERVICE_APIS}
      * that additionally requires the match to terminate at a host/path boundary — that is, either
-     * the end of the string or one of {@code /}, {@code ?}, {@code #}, {@code :}. This prevents
-     * subdomain spoofing such as {@code https://phir.cdc.gov.evil.com/...} being accepted as a
-     * PHIR URL.
+     * the end of the string, one of {@code /}, {@code ?}, {@code #}, or a {@code :port} where
+     * the port is all digits. This prevents subdomain spoofing (e.g.
+     * {@code https://phir.cdc.gov.evil.com/...}) and userinfo spoofing (e.g.
+     * {@code https://phir.cdc.gov:pw@evil.com/...}, where {@code phir.cdc.gov} is merely
+     * RFC-3986 userinfo and the real host is {@code evil.com}) from being accepted as a PHIR URL.
+     *
+     * <p>Case normalization uses {@link Locale#ROOT} so the comparison is stable under any JVM
+     * default locale (including Turkish-style locales, which would otherwise map {@code I} to the
+     * dotless {@code ı} and break matching for upper-case input).
      *
      * <p>{@code null} and blank input return {@code false}.
      *
@@ -99,8 +106,9 @@ public final class PhirTerminologyUrlValidator {
         if (systemUri == null || systemUri.isBlank()) {
             return false;
         }
-        String normalized = systemUri.toLowerCase();
-        return ACCEPTED_PHIR_SERVICE_APIS.stream().anyMatch(api -> matchesAtBoundary(normalized, api.toLowerCase()));
+        String normalized = systemUri.toLowerCase(Locale.ROOT);
+        return ACCEPTED_PHIR_SERVICE_APIS.stream()
+                .anyMatch(api -> matchesAtBoundary(normalized, api.toLowerCase(Locale.ROOT)));
     }
 
     private static boolean matchesAtBoundary(String normalizedUri, String lowerApi) {
@@ -118,6 +126,23 @@ public final class PhirTerminologyUrlValidator {
             return true;
         }
         char next = normalizedUri.charAt(lowerApi.length());
-        return next == '/' || next == '?' || next == '#' || next == ':';
+        if (next == '/' || next == '?' || next == '#') {
+            return true;
+        }
+        // ":" may introduce either a port (digits until boundary) or RFC-3986 userinfo. Accept
+        // only the port form so "...phir.cdc.gov:pw@evil.com/..." is rejected as a spoofed host.
+        if (next == ':') {
+            for (int i = lowerApi.length() + 1; i < normalizedUri.length(); i++) {
+                char c = normalizedUri.charAt(i);
+                if (c == '/' || c == '?' || c == '#') {
+                    return true;
+                }
+                if (c < '0' || c > '9') {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

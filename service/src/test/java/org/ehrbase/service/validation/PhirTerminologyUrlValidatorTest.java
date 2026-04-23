@@ -20,6 +20,7 @@ package org.ehrbase.service.validation;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Locale;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -75,6 +76,31 @@ class PhirTerminologyUrlValidatorTest {
         assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("http://phir.cdc.gov.evil.com"));
         assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("//phir.cdc.gov.evil.com/ValueSet"));
         assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("terminology://phir.cdc.gov.evil.com"));
+    }
+
+    @Test
+    void isPhirTerminology_NegativePath_RejectsUserinfoSpoofing() {
+        // RFC-3986 userinfo spoofing: "phir.cdc.gov:pw" is userinfo, real host is "evil.com".
+        assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("https://phir.cdc.gov:pw@evil.com/CodeSystem"));
+        assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("https://phir.cdc.gov:fake@evil.com"));
+        assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("http://phir.cdc.gov:abc123@evil.com/"));
+        assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("//phir.cdc.gov:user@evil.com/ValueSet"));
+    }
+
+    @Test
+    void isPhirTerminology_HappyPath_LocaleInsensitive() {
+        // Under Turkish (or Azerbaijani) default locales the JVM would otherwise lower-case "I"
+        // to dotless "ı" (U+0131) rather than "i", breaking prefix matching. Force the Turkish
+        // locale for this test to guard against a regression on locale-aware toLowerCase().
+        Locale previous = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr"));
+            assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("PHIR://SOME/Path"));
+            assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("HTTPS://PHIR.CDC.GOV/ValueSet"));
+            assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("Terminology://PHIR.cdc.gov"));
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 
     @Test
