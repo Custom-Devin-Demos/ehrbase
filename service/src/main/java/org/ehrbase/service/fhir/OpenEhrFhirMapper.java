@@ -31,7 +31,6 @@ import com.nedap.archie.rm.datavalues.DvCodedText;
 import com.nedap.archie.rm.datavalues.DvText;
 import com.nedap.archie.rm.datavalues.quantity.DvQuantity;
 import com.nedap.archie.rm.datavalues.quantity.datetime.DvDateTime;
-import com.nedap.archie.rm.generic.PartyIdentified;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +42,6 @@ import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.DateTimeType;
-import org.hl7.fhir.r4.model.HumanName;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.MedicationStatement;
 import org.hl7.fhir.r4.model.Meta;
@@ -110,18 +108,6 @@ public class OpenEhrFhirMapper {
         patient.setId(ehrId.toString());
         patient.addIdentifier(
                 new Identifier().setSystem(OPENEHR_SYSTEM + "/ehr").setValue(ehrId.toString()));
-
-        // Extract subject info from composition context if available
-        if (composition.getComposer() instanceof PartyIdentified composer) {
-            if (composer.getName() != null) {
-                patient.addName(new HumanName().setText(composer.getName()));
-            }
-            if (composer.getExternalRef() != null && composer.getExternalRef().getId() != null) {
-                patient.addIdentifier(new Identifier()
-                        .setSystem(OPENEHR_SYSTEM + "/subject")
-                        .setValue(composer.getExternalRef().getId().getValue()));
-            }
-        }
 
         return patient;
     }
@@ -401,8 +387,9 @@ public class OpenEhrFhirMapper {
                     } else if (element.getValue() instanceof DvText dvText) {
                         Narrative narrative = new Narrative();
                         narrative.setStatus(Narrative.NarrativeStatus.GENERATED);
+                        String escapedText = escapeHtml(dvText.getValue());
                         narrative.setDivAsString(
-                                "<div xmlns=\"http://www.w3.org/1999/xhtml\">" + dvText.getValue() + "</div>");
+                                "<div xmlns=\"http://www.w3.org/1999/xhtml\">" + escapedText + "</div>");
                         condition.setText(narrative);
                     } else if (element.getValue() instanceof DvDateTime dvDateTime) {
                         condition.setOnset(mapDvDateTime(dvDateTime));
@@ -502,5 +489,16 @@ public class OpenEhrFhirMapper {
         Bundle.BundleEntryComponent entry = bundle.addEntry();
         entry.setResource(resource);
         entry.setFullUrl("urn:uuid:" + resource.getId());
+    }
+
+    private static String escapeHtml(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 }

@@ -85,7 +85,7 @@ class OpenEhrFhirMapperTest {
     }
 
     @Test
-    void shouldMapPatientNameFromComposer() {
+    void shouldNotMapComposerAsPatientName() {
         Composition composition = createMinimalComposition();
         PartyIdentified composer = new PartyIdentified();
         composer.setName("Dr. Jane Smith");
@@ -93,9 +93,9 @@ class OpenEhrFhirMapperTest {
 
         Bundle bundle = mapper.mapCompositionToBundle(testEhrId, composition, null);
 
+        // Composer is the clinician, NOT the patient — must not appear as patient name
         Patient patient = (Patient) bundle.getEntry().get(0).getResource();
-        assertThat(patient.getName()).isNotEmpty();
-        assertThat(patient.getName().get(0).getText()).isEqualTo("Dr. Jane Smith");
+        assertThat(patient.getName()).isEmpty();
     }
 
     @Test
