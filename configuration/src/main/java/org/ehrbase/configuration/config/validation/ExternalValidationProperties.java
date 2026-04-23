@@ -64,7 +64,8 @@ public class ExternalValidationProperties {
     }
 
     public enum ProviderType {
-        FHIR
+        FHIR,
+        PHIR
     }
 
     public static class Provider {
