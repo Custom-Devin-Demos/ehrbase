@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 import com.jayway.jsonpath.internal.JsonContext;
 import org.ehrbase.openehr.sdk.validation.terminology.TerminologyParam;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -68,6 +69,22 @@ class PhirTerminologyValidationTest {
         verify(validation)
                 .internalGet(PhirTerminologyValidation.renderTempl(
                         PhirTerminologyValidation.SUPPORTS_VALUE_SET_TEMPL, BASE_URL, valueSetUrl));
+    }
+
+    @Test
+    void guaranteePrefix() {
+        Assertions.assertEquals("url=ABC", PhirTerminologyValidation.guaranteePrefix("url=", "url=ABC"));
+        Assertions.assertEquals("url=ABC", PhirTerminologyValidation.guaranteePrefix("url=", "ABC"));
+        Assertions.assertNull(PhirTerminologyValidation.guaranteePrefix("url=", ""));
+        Assertions.assertEquals(
+                "xyz=XYZ&url=ABC", PhirTerminologyValidation.guaranteePrefix("url=", "xyz=XYZ&url=ABC"));
+    }
+
+    @Test
+    void renderTempl() {
+        String rendered = PhirTerminologyValidation.renderTempl(
+                PhirTerminologyValidation.SUPPORTS_VALUE_SET_TEMPL, BASE_URL, "http://example.org/vs");
+        Assertions.assertEquals(BASE_URL + "/ValueSet?url=http://example.org/vs", rendered);
     }
 
     @Test

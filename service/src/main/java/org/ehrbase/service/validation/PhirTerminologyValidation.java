@@ -322,8 +322,9 @@ public class PhirTerminologyValidation implements ExternalTerminologyValidation 
             Map<String, String> coding = codings.get(0);
             String system = coding.get(ValueSetConverter.SYS);
             if (!StringUtils.equals(system, codePhrase.getTerminologyId().getValue())) {
-                var constraintViolation = new ConstraintViolation(
-                        MessageFormat.format("The terminology {0} must be  {1}", codePhrase.getCodeString(), system));
+                var constraintViolation = new ConstraintViolation(MessageFormat.format(
+                        "The terminology {0} must be  {1}",
+                        codePhrase.getTerminologyId().getValue(), system));
                 return Try.failure(new ConstraintViolationException(List.of(constraintViolation)));
             }
         }
