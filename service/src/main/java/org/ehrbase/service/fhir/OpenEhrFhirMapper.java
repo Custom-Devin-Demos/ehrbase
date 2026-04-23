@@ -273,6 +273,13 @@ public class OpenEhrFhirMapper {
         }
 
         // Map the first event's data items as observation components
+        // TODO: Future enhancement — map each event to a separate FHIR Observation for time-series data
+        if (history.getEvents().size() > 1) {
+            LOG.warn(
+                    "History contains {} events but only the first is mapped to FHIR; {} events dropped",
+                    history.getEvents().size(),
+                    history.getEvents().size() - 1);
+        }
         var event = history.getEvents().get(0);
         if (event.getData() instanceof ItemTree itemTree) {
             mapItemTreeToObservation(itemTree, fhirObs, mapping);
@@ -452,8 +459,11 @@ public class OpenEhrFhirMapper {
             // FHIR requires full ISO 8601 with at least seconds precision
             String isoValue = dvDateTime.getValue().toString();
             // Ensure the datetime has seconds (FHIR rejects truncated formats like "2024-01-15T10:30")
+            // Handle both bare (no timezone) and timezone-suffixed formats
             if (isoValue.matches(".*T\\d{2}:\\d{2}$")) {
                 isoValue += ":00";
+            } else if (isoValue.matches(".*T\\d{2}:\\d{2}[Z+-].*")) {
+                isoValue = isoValue.replaceFirst("(T\\d{2}:\\d{2})([Z+-])", "$1:00$2");
             }
             return new DateTimeType(isoValue);
         }
