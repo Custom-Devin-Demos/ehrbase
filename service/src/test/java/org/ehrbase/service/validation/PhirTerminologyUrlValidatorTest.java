@@ -69,6 +69,23 @@ class PhirTerminologyUrlValidatorTest {
     }
 
     @Test
+    void isPhirTerminology_NegativePath_RejectsSubdomainSpoofing() {
+        // Subdomain-of-accepted-host attack — must not be recognized as PHIR.
+        assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("https://phir.cdc.gov.evil.com/CodeSystem"));
+        assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("http://phir.cdc.gov.evil.com"));
+        assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("//phir.cdc.gov.evil.com/ValueSet"));
+        assertFalse(PhirTerminologyUrlValidator.isPhirTerminology("terminology://phir.cdc.gov.evil.com"));
+    }
+
+    @Test
+    void isPhirTerminology_HappyPath_HostBoundaryTerminators() {
+        // Any of the host/path boundary terminators should be accepted after the authority.
+        assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("https://phir.cdc.gov:8443/CodeSystem"));
+        assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("https://phir.cdc.gov?query=foo"));
+        assertTrue(PhirTerminologyUrlValidator.isPhirTerminology("https://phir.cdc.gov#section"));
+    }
+
+    @Test
     void isPhirTerminology_NegativePath_RejectsNullAndBlank() {
         assertFalse(PhirTerminologyUrlValidator.isPhirTerminology(null));
         assertFalse(PhirTerminologyUrlValidator.isPhirTerminology(""));

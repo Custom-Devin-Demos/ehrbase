@@ -84,8 +84,13 @@ public final class PhirTerminologyUrlValidator {
     /**
      * Returns {@code true} if {@code systemUri} references a recognized PHIR authority.
      *
-     * <p>The check is a case-insensitive {@code startsWith} comparison against
-     * {@link #ACCEPTED_PHIR_SERVICE_APIS}. {@code null} and blank input return {@code false}.
+     * <p>The check is a case-insensitive prefix match against {@link #ACCEPTED_PHIR_SERVICE_APIS}
+     * that additionally requires the match to terminate at a host/path boundary — that is, either
+     * the end of the string or one of {@code /}, {@code ?}, {@code #}, {@code :}. This prevents
+     * subdomain spoofing such as {@code https://phir.cdc.gov.evil.com/...} being accepted as a
+     * PHIR URL.
+     *
+     * <p>{@code null} and blank input return {@code false}.
      *
      * @param systemUri a candidate terminology system URI or {@code service-api} identifier
      * @return {@code true} if the URI is rooted at a recognized PHIR authority
@@ -95,6 +100,24 @@ public final class PhirTerminologyUrlValidator {
             return false;
         }
         String normalized = systemUri.toLowerCase();
-        return ACCEPTED_PHIR_SERVICE_APIS.stream().anyMatch(api -> normalized.startsWith(api.toLowerCase()));
+        return ACCEPTED_PHIR_SERVICE_APIS.stream().anyMatch(api -> matchesAtBoundary(normalized, api.toLowerCase()));
+    }
+
+    private static boolean matchesAtBoundary(String normalizedUri, String lowerApi) {
+        if (!normalizedUri.startsWith(lowerApi)) {
+            return false;
+        }
+        if (normalizedUri.length() == lowerApi.length()) {
+            return true;
+        }
+        // Schemes like "phir://" already end in a path/authority separator, so any following
+        // character is already on a boundary. For entries that end at an authority (e.g.
+        // "//phir.cdc.gov", "https://phir.cdc.gov"), require a host/path terminator so that
+        // a spoofed subdomain like "phir.cdc.gov.evil.com" is rejected.
+        if (lowerApi.endsWith("/")) {
+            return true;
+        }
+        char next = normalizedUri.charAt(lowerApi.length());
+        return next == '/' || next == '?' || next == '#' || next == ':';
     }
 }
