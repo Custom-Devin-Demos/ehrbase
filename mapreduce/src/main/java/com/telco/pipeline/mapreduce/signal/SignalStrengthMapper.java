@@ -59,25 +59,27 @@ public class SignalStrengthMapper
         }
 
         String[] fields = line.split("\\|");
-        if (fields.length < 19) {
+        if (fields.length < 18) {
             malformedRecords.increment(1);
             return;
         }
 
         try {
-            String towerId = fields[0].trim();
-            int sectorId = Integer.parseInt(fields[1].trim());
-            long timestampMs = Long.parseLong(fields[2].trim());
-            double rssi = Double.parseDouble(fields[3].trim());
-            double snr = Double.parseDouble(fields[4].trim());
+            // Field layout: signal_id(0)|tower_id(1)|sector_id(2)|timestamp(3)|rssi(4)
+            //   |rsrp(5)|rsrq(6)|sinr(7)|cqi(8)|timing_advance(9)
+            //   |prb_util(10)|dl(11)|ul(12)|lat(13)|lon(14)|tech(15)|band(16)|interference(17)
+            String towerId = fields[1].trim();
+            int sectorId = Integer.parseInt(fields[2].trim());
+            long timestampMs = Long.parseLong(fields[3].trim());
+            double rssi = Double.parseDouble(fields[4].trim());
             double rsrp = Double.parseDouble(fields[5].trim());
             double rsrq = Double.parseDouble(fields[6].trim());
             double sinr = Double.parseDouble(fields[7].trim());
             int cqi = Integer.parseInt(fields[8].trim());
-            int connectedUes = Integer.parseInt(fields[14].trim());
-            double prbUtilization = Double.parseDouble(fields[15].trim());
-            double dlThroughput = Double.parseDouble(fields[16].trim());
-            double ulThroughput = Double.parseDouble(fields[17].trim());
+            double prbUtilization = Double.parseDouble(fields[10].trim());
+            double dlThroughput = Double.parseDouble(fields[11].trim());
+            double ulThroughput = Double.parseDouble(fields[12].trim());
+            int connectedUes = 0;
 
             // Range validation
             if (rssi < -140 || rssi > -20) {

@@ -214,12 +214,16 @@
     },
     {
       "name": "rat_type_start",
-      "type": "com.telco.pipeline.avro.RadioTechnology",
+      "type": {
+        "type": "enum",
+        "name": "CallRadioTechnology",
+        "symbols": ["LTE", "LTE_A", "NR_NSA", "NR_SA", "UMTS", "GSM"]
+      },
       "doc": "Radio Access Technology at call start"
     },
     {
       "name": "rat_type_end",
-      "type": "com.telco.pipeline.avro.RadioTechnology",
+      "type": "CallRadioTechnology",
       "doc": "Radio Access Technology at call end"
     },
     {

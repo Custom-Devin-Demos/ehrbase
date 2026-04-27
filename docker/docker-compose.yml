@@ -49,7 +49,8 @@ services:
     image: apache/hadoop:3.3.6
     hostname: namenode
     container_name: telco-namenode
-    command: ["hdfs", "namenode"]
+    user: root
+    command: ["bash", "-c", "mkdir -p /tmp/hadoop-root/dfs/name && if [ ! -d /tmp/hadoop-root/dfs/name/current ]; then hdfs namenode -format -force; fi && hdfs namenode"]
     ports:
       - "9870:9870"
       - "8020:8020"
@@ -66,7 +67,8 @@ services:
     image: apache/hadoop:3.3.6
     hostname: datanode
     container_name: telco-datanode
-    command: ["hdfs", "datanode"]
+    user: root
+    command: ["bash", "-c", "mkdir -p /tmp/hadoop-root/dfs/data && sleep 15 && hdfs datanode"]
     depends_on:
       - namenode
     environment:
@@ -81,6 +83,7 @@ services:
     image: apache/hadoop:3.3.6
     hostname: resourcemanager
     container_name: telco-resourcemanager
+    user: root
     command: ["yarn", "resourcemanager"]
     depends_on:
       - namenode
@@ -94,6 +97,7 @@ services:
     image: apache/hadoop:3.3.6
     hostname: nodemanager
     container_name: telco-nodemanager
+    user: root
     command: ["yarn", "nodemanager"]
     depends_on:
       - resourcemanager
@@ -102,7 +106,7 @@ services:
 
   # HBase Master
   hbase-master:
-    image: harisekhon/hbase:2.5
+    image: harisekhon/hbase:latest
     hostname: hbase-master
     container_name: telco-hbase-master
     depends_on:
@@ -128,7 +132,7 @@ services:
     volumes:
       - hive-db-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   # Hive Server
   hive-server:

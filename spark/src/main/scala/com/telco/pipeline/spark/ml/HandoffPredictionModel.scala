@@ -100,7 +100,7 @@ object HandoffPredictionModel {
         .stages.last.asInstanceOf[GBTClassifier]
 
       // Save model
-      model.bestModel.write.overwrite().save(modelOutputPath)
+      model.bestModel.asInstanceOf[org.apache.spark.ml.PipelineModel].write.overwrite().save(modelOutputPath)
       LOG.info(s"Model saved to $modelOutputPath")
 
       // Save metrics

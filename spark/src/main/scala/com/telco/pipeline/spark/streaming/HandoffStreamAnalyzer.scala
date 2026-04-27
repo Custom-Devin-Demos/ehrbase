@@ -114,7 +114,7 @@ object HandoffStreamAnalyzer {
     val towerFailures = handoffs
       .filter(_.result != "SUCCESS")
       .map(h => (h.sourceTower, 1))
-      .reduceByKeyAndWindow(_ + _, _ - _, Seconds(STORM_WINDOW_SECONDS), Seconds(10))
+      .reduceByKeyAndWindow((a: Int, b: Int) => a + b, (a: Int, b: Int) => a - b, Seconds(STORM_WINDOW_SECONDS), Seconds(10))
 
     towerFailures.foreachRDD { rdd =>
       rdd.filter(_._2 >= STORM_FAILURE_THRESHOLD).collect().foreach { case (tower, count) =>
@@ -126,7 +126,7 @@ object HandoffStreamAnalyzer {
     val srvccCounts = handoffs
       .filter(h => h.handoffType.contains("SRVCC") || h.cause == "CSFB" || h.cause == "SRVCC")
       .map(h => (h.sourceTower, 1))
-      .reduceByKeyAndWindow(_ + _, Seconds(300), Seconds(60))
+      .reduceByKeyAndWindow((a: Int, b: Int) => a + b, Seconds(300), Seconds(60))
 
     srvccCounts.foreachRDD { rdd =>
       rdd.filter(_._2 >= SRVCC_SPIKE_THRESHOLD).collect().foreach { case (tower, count) =>

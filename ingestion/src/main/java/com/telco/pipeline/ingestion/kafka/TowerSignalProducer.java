@@ -167,7 +167,7 @@ public class TowerSignalProducer implements Closeable {
         if (running.compareAndSet(true, false)) {
             LOG.info("Shutting down TowerSignalProducer...");
             producer.flush();
-            producer.close(30, TimeUnit.SECONDS);
+            producer.close(java.time.Duration.ofSeconds(30));
             callbackExecutor.shutdown();
             try {
                 if (!callbackExecutor.awaitTermination(10, TimeUnit.SECONDS)) {

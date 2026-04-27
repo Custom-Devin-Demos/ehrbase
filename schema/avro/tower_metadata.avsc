@@ -107,8 +107,8 @@
             {"name": "mechanical_tilt_deg", "type": "double"},
             {"name": "antenna_gain_dbi", "type": "double"},
             {"name": "max_tx_power_dbm", "type": "double"},
-            {"name": "frequency_bands", "type": {"type": "array", "items": "com.telco.pipeline.avro.FrequencyBand"}},
-            {"name": "technologies", "type": {"type": "array", "items": "com.telco.pipeline.avro.RadioTechnology"}},
+            {"name": "frequency_bands", "type": {"type": "array", "items": {"type": "enum", "name": "SectorFrequencyBand", "symbols": ["BAND_700", "BAND_850", "BAND_1700", "BAND_1900", "BAND_2100", "BAND_2600", "BAND_3500", "BAND_N71", "BAND_N77", "BAND_N258"]}}},
+            {"name": "technologies", "type": {"type": "array", "items": {"type": "enum", "name": "SectorRadioTechnology", "symbols": ["LTE", "LTE_A", "NR_NSA", "NR_SA", "UMTS", "GSM"]}}},
             {"name": "max_connected_ues", "type": "int"},
             {"name": "mimo_config", "type": "string", "doc": "MIMO configuration e.g., 4x4, 8x8, 64T64R"}
           ]

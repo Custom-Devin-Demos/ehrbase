@@ -146,7 +146,7 @@ public class HandoffEventProducer implements Closeable {
     public void close() throws IOException {
         if (running.compareAndSet(true, false)) {
             producer.flush();
-            producer.close(30, TimeUnit.SECONDS);
+            producer.close(java.time.Duration.ofSeconds(30));
             LOG.info("HandoffEventProducer shut down");
         }
     }
