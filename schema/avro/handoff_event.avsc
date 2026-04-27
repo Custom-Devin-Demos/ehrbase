@@ -1,0 +1,239 @@
+{
+  "namespace": "com.telco.pipeline.avro",
+  "type": "record",
+  "name": "HandoffEvent",
+  "doc": "Records a handoff (handover) event when a UE transitions between cells. Includes both intra-frequency and inter-frequency handoffs, as well as inter-RAT handoffs (e.g., LTE to NR).",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "Unique identifier for this handoff event"
+    },
+    {
+      "name": "imsi_hash",
+      "type": "string",
+      "doc": "SHA-256 hash of the subscriber IMSI for privacy-compliant tracking"
+    },
+    {
+      "name": "msisdn_hash",
+      "type": "string",
+      "doc": "SHA-256 hash of the subscriber phone number"
+    },
+    {
+      "name": "call_id",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Active call/session ID if handoff occurs during a call, null for idle-mode mobility"
+    },
+    {
+      "name": "event_timestamp_ms",
+      "type": "long",
+      "doc": "Handoff event timestamp in epoch milliseconds"
+    },
+    {
+      "name": "handoff_trigger_timestamp_ms",
+      "type": "long",
+      "doc": "Timestamp when measurement report triggered the handoff decision"
+    },
+    {
+      "name": "handoff_complete_timestamp_ms",
+      "type": ["null", "long"],
+      "default": null,
+      "doc": "Timestamp when handoff completed successfully, null if failed"
+    },
+    {
+      "name": "source_tower_id",
+      "type": "string",
+      "doc": "Source cell tower identifier (MCC-MNC-LAC-CID)"
+    },
+    {
+      "name": "source_sector_id",
+      "type": "int",
+      "doc": "Source antenna sector"
+    },
+    {
+      "name": "source_pci",
+      "type": "int",
+      "doc": "Source Physical Cell Identity"
+    },
+    {
+      "name": "target_tower_id",
+      "type": "string",
+      "doc": "Target cell tower identifier"
+    },
+    {
+      "name": "target_sector_id",
+      "type": "int",
+      "doc": "Target antenna sector"
+    },
+    {
+      "name": "target_pci",
+      "type": "int",
+      "doc": "Target Physical Cell Identity"
+    },
+    {
+      "name": "handoff_type",
+      "type": {
+        "type": "enum",
+        "name": "HandoffType",
+        "symbols": [
+          "INTRA_FREQ",
+          "INTER_FREQ",
+          "INTER_RAT_LTE_TO_NR",
+          "INTER_RAT_NR_TO_LTE",
+          "INTER_RAT_LTE_TO_UMTS",
+          "INTER_RAT_UMTS_TO_LTE",
+          "INTER_ENB",
+          "INTRA_ENB",
+          "X2_HANDOVER",
+          "S1_HANDOVER",
+          "CONDITIONAL_HANDOVER",
+          "DAPS_HANDOVER"
+        ]
+      },
+      "doc": "Type of handoff performed"
+    },
+    {
+      "name": "handoff_cause",
+      "type": {
+        "type": "enum",
+        "name": "HandoffCause",
+        "symbols": [
+          "SIGNAL_DEGRADATION",
+          "LOAD_BALANCING",
+          "COVERAGE_OPTIMIZATION",
+          "INTERFERENCE_MITIGATION",
+          "UE_MOBILITY",
+          "QOS_REQUIREMENT",
+          "EMERGENCY_REDIRECT",
+          "OPERATOR_POLICY",
+          "CSFB",
+          "SRVCC"
+        ]
+      },
+      "doc": "Reason for the handoff"
+    },
+    {
+      "name": "result",
+      "type": {
+        "type": "enum",
+        "name": "HandoffResult",
+        "symbols": [
+          "SUCCESS",
+          "FAILURE_TIMEOUT",
+          "FAILURE_TARGET_REJECT",
+          "FAILURE_RADIO_LINK",
+          "FAILURE_RESOURCE_UNAVAILABLE",
+          "FAILURE_PREPARATION",
+          "TOO_LATE",
+          "TOO_EARLY",
+          "PING_PONG"
+        ]
+      },
+      "doc": "Outcome of the handoff attempt"
+    },
+    {
+      "name": "source_rsrp_dbm",
+      "type": "double",
+      "doc": "RSRP at source cell when handoff was triggered"
+    },
+    {
+      "name": "target_rsrp_dbm",
+      "type": "double",
+      "doc": "RSRP at target cell when handoff was triggered"
+    },
+    {
+      "name": "source_rsrq_db",
+      "type": "double",
+      "doc": "RSRQ at source cell"
+    },
+    {
+      "name": "target_rsrq_db",
+      "type": "double",
+      "doc": "RSRQ at target cell"
+    },
+    {
+      "name": "ue_velocity_kmh",
+      "type": ["null", "double"],
+      "default": null,
+      "doc": "Estimated UE velocity in km/h (from Doppler shift or GPS)"
+    },
+    {
+      "name": "ue_latitude",
+      "type": ["null", "double"],
+      "default": null,
+      "doc": "Estimated UE latitude at time of handoff"
+    },
+    {
+      "name": "ue_longitude",
+      "type": ["null", "double"],
+      "default": null,
+      "doc": "Estimated UE longitude at time of handoff"
+    },
+    {
+      "name": "handoff_duration_ms",
+      "type": ["null", "long"],
+      "default": null,
+      "doc": "Total handoff execution time in milliseconds"
+    },
+    {
+      "name": "data_interruption_ms",
+      "type": ["null", "long"],
+      "default": null,
+      "doc": "Duration of data plane interruption during handoff"
+    },
+    {
+      "name": "hysteresis_db",
+      "type": "double",
+      "doc": "Handoff hysteresis threshold configured at time of event"
+    },
+    {
+      "name": "time_to_trigger_ms",
+      "type": "int",
+      "doc": "Time-to-trigger parameter (ms) that was configured"
+    },
+    {
+      "name": "a3_offset_db",
+      "type": "double",
+      "doc": "A3 event offset configured for this handoff decision"
+    },
+    {
+      "name": "neighbor_cell_count",
+      "type": "int",
+      "doc": "Number of neighbor cells in measurement report"
+    },
+    {
+      "name": "is_voice_call_active",
+      "type": "boolean",
+      "doc": "Whether a voice call was active during the handoff"
+    },
+    {
+      "name": "is_volte",
+      "type": "boolean",
+      "doc": "Whether the voice call was VoLTE"
+    },
+    {
+      "name": "qci",
+      "type": ["null", "int"],
+      "default": null,
+      "doc": "QoS Class Identifier of the active bearer"
+    },
+    {
+      "name": "mme_id",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "MME identifier handling the handoff signaling"
+    },
+    {
+      "name": "tracking_area_change",
+      "type": "boolean",
+      "doc": "Whether the handoff crossed a Tracking Area boundary"
+    },
+    {
+      "name": "metadata",
+      "type": ["null", {"type": "map", "values": "string"}],
+      "default": null,
+      "doc": "Additional vendor-specific metadata"
+    }
+  ]
+}

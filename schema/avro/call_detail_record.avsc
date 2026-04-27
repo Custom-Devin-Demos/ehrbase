@@ -1,0 +1,242 @@
+{
+  "namespace": "com.telco.pipeline.avro",
+  "type": "record",
+  "name": "CallDetailRecord",
+  "doc": "Call Detail Record capturing voice call lifecycle from setup to teardown, enriched with network quality metrics and tower traversal data.",
+  "fields": [
+    {
+      "name": "cdr_id",
+      "type": "string",
+      "doc": "Unique CDR identifier"
+    },
+    {
+      "name": "call_id",
+      "type": "string",
+      "doc": "Call session identifier, consistent across handoffs"
+    },
+    {
+      "name": "caller_imsi_hash",
+      "type": "string",
+      "doc": "SHA-256 hash of calling party IMSI"
+    },
+    {
+      "name": "callee_imsi_hash",
+      "type": "string",
+      "doc": "SHA-256 hash of called party IMSI"
+    },
+    {
+      "name": "caller_msisdn_hash",
+      "type": "string",
+      "doc": "SHA-256 hash of calling party MSISDN"
+    },
+    {
+      "name": "callee_msisdn_hash",
+      "type": "string",
+      "doc": "SHA-256 hash of called party MSISDN"
+    },
+    {
+      "name": "call_type",
+      "type": {
+        "type": "enum",
+        "name": "CallType",
+        "symbols": ["VOICE_MO", "VOICE_MT", "VOLTE_MO", "VOLTE_MT", "VOWIFI_MO", "VOWIFI_MT", "VIDEO_MO", "VIDEO_MT", "EMERGENCY"]
+      },
+      "doc": "Call origination type"
+    },
+    {
+      "name": "call_setup_timestamp_ms",
+      "type": "long",
+      "doc": "Call setup initiation timestamp"
+    },
+    {
+      "name": "call_connect_timestamp_ms",
+      "type": ["null", "long"],
+      "default": null,
+      "doc": "Call answer/connect timestamp, null if never connected"
+    },
+    {
+      "name": "call_end_timestamp_ms",
+      "type": "long",
+      "doc": "Call termination timestamp"
+    },
+    {
+      "name": "call_duration_seconds",
+      "type": "int",
+      "doc": "Billable call duration in seconds"
+    },
+    {
+      "name": "setup_time_ms",
+      "type": "long",
+      "doc": "Time from setup to ringing in milliseconds"
+    },
+    {
+      "name": "termination_cause",
+      "type": {
+        "type": "enum",
+        "name": "TerminationCause",
+        "symbols": [
+          "NORMAL_CLEARING",
+          "USER_BUSY",
+          "NO_ANSWER",
+          "CALL_REJECTED",
+          "NETWORK_OUT_OF_ORDER",
+          "RADIO_LINK_FAILURE",
+          "HANDOFF_FAILURE",
+          "RESOURCE_UNAVAILABLE",
+          "BEARER_CAPABILITY_UNAVAILABLE",
+          "SERVICE_UNAVAILABLE",
+          "CONGESTION",
+          "QOS_UNAVAILABLE",
+          "PREEMPTION",
+          "EMERGENCY_PREEMPTION"
+        ]
+      },
+      "doc": "Reason for call termination"
+    },
+    {
+      "name": "is_dropped",
+      "type": "boolean",
+      "doc": "Whether this call was abnormally dropped"
+    },
+    {
+      "name": "originating_tower_id",
+      "type": "string",
+      "doc": "Tower ID where the call originated"
+    },
+    {
+      "name": "originating_sector_id",
+      "type": "int",
+      "doc": "Sector where the call originated"
+    },
+    {
+      "name": "terminating_tower_id",
+      "type": "string",
+      "doc": "Tower ID where the call ended"
+    },
+    {
+      "name": "terminating_sector_id",
+      "type": "int",
+      "doc": "Sector where the call ended"
+    },
+    {
+      "name": "towers_traversed",
+      "type": {"type": "array", "items": "string"},
+      "doc": "Ordered list of tower IDs traversed during the call"
+    },
+    {
+      "name": "handoff_count",
+      "type": "int",
+      "doc": "Total number of successful handoffs during this call"
+    },
+    {
+      "name": "failed_handoff_count",
+      "type": "int",
+      "doc": "Number of failed handoff attempts during this call"
+    },
+    {
+      "name": "avg_signal_strength_dbm",
+      "type": "double",
+      "doc": "Average RSSI during the call"
+    },
+    {
+      "name": "min_signal_strength_dbm",
+      "type": "double",
+      "doc": "Minimum RSSI during the call"
+    },
+    {
+      "name": "avg_sinr_db",
+      "type": "double",
+      "doc": "Average SINR during the call"
+    },
+    {
+      "name": "mos_score",
+      "type": ["null", "double"],
+      "default": null,
+      "doc": "Mean Opinion Score (1.0-5.0) for voice quality"
+    },
+    {
+      "name": "jitter_ms",
+      "type": ["null", "double"],
+      "default": null,
+      "doc": "Average jitter in milliseconds"
+    },
+    {
+      "name": "packet_loss_pct",
+      "type": ["null", "double"],
+      "default": null,
+      "doc": "Packet loss percentage for VoLTE calls"
+    },
+    {
+      "name": "codec",
+      "type": ["null", {
+        "type": "enum",
+        "name": "VoiceCodec",
+        "symbols": ["AMR_NB", "AMR_WB", "EVS", "G711", "G729"]
+      }],
+      "default": null,
+      "doc": "Voice codec used"
+    },
+    {
+      "name": "caller_location",
+      "type": ["null", {
+        "type": "record",
+        "name": "GeoLocation",
+        "fields": [
+          {"name": "latitude", "type": "double"},
+          {"name": "longitude", "type": "double"},
+          {"name": "accuracy_m", "type": "double"},
+          {"name": "location_method", "type": {"type": "enum", "name": "LocationMethod", "symbols": ["GPS", "CELL_ID", "OTDOA", "TA_BASED", "WIFI"]}}
+        ]
+      }],
+      "default": null,
+      "doc": "Caller location at call setup"
+    },
+    {
+      "name": "network_slice_id",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "5G network slice identifier if applicable"
+    },
+    {
+      "name": "apn",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Access Point Name used"
+    },
+    {
+      "name": "roaming_type",
+      "type": {
+        "type": "enum",
+        "name": "RoamingType",
+        "symbols": ["HOME", "NATIONAL_ROAMING", "INTERNATIONAL_ROAMING"]
+      },
+      "doc": "Roaming status"
+    },
+    {
+      "name": "rat_type_start",
+      "type": "com.telco.pipeline.avro.RadioTechnology",
+      "doc": "Radio Access Technology at call start"
+    },
+    {
+      "name": "rat_type_end",
+      "type": "com.telco.pipeline.avro.RadioTechnology",
+      "doc": "Radio Access Technology at call end"
+    },
+    {
+      "name": "srvcc_performed",
+      "type": "boolean",
+      "doc": "Whether SRVCC (Single Radio Voice Call Continuity) was performed"
+    },
+    {
+      "name": "csfb_performed",
+      "type": "boolean",
+      "doc": "Whether Circuit-Switched Fallback was performed"
+    },
+    {
+      "name": "metadata",
+      "type": ["null", {"type": "map", "values": "string"}],
+      "default": null,
+      "doc": "Additional vendor-specific metadata"
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "namespace": "com.telco.pipeline.avro",
+  "type": "record",
+  "name": "TowerSignal",
+  "doc": "Raw signal measurement from a cell tower sector antenna. Captured at configurable intervals (default 5s) by the RAN controller and forwarded via the backhaul network.",
+  "fields": [
+    {
+      "name": "signal_id",
+      "type": "string",
+      "doc": "UUID for this measurement sample"
+    },
+    {
+      "name": "tower_id",
+      "type": "string",
+      "doc": "Unique cell tower identifier (format: MCC-MNC-LAC-CID)"
+    },
+    {
+      "name": "sector_id",
+      "type": "int",
+      "doc": "Antenna sector index (0-2 for 3-sector, 0-5 for 6-sector)"
+    },
+    {
+      "name": "timestamp_ms",
+      "type": "long",
+      "doc": "Measurement timestamp in epoch milliseconds (UTC)"
+    },
+    {
+      "name": "signal_strength_dbm",
+      "type": "double",
+      "doc": "Received signal strength indicator (RSSI) in dBm. Typical range: -120 to -30"
+    },
+    {
+      "name": "signal_to_noise_ratio",
+      "type": "double",
+      "doc": "Signal-to-noise ratio in dB"
+    },
+    {
+      "name": "rsrp",
+      "type": "double",
+      "doc": "Reference Signal Received Power in dBm (LTE/5G). Range: -140 to -44"
+    },
+    {
+      "name": "rsrq",
+      "type": "double",
+      "doc": "Reference Signal Received Quality in dB. Range: -20 to -3"
+    },
+    {
+      "name": "sinr",
+      "type": "double",
+      "doc": "Signal-to-Interference-plus-Noise Ratio in dB. Range: -20 to 30"
+    },
+    {
+      "name": "cqi",
+      "type": "int",
+      "doc": "Channel Quality Indicator (0-15). Higher values indicate better channel quality"
+    },
+    {
+      "name": "timing_advance",
+      "type": "int",
+      "doc": "Timing advance value indicating UE distance from tower. Range: 0-1282"
+    },
+    {
+      "name": "frequency_band",
+      "type": {
+        "type": "enum",
+        "name": "FrequencyBand",
+        "symbols": ["BAND_700", "BAND_850", "BAND_1700", "BAND_1900", "BAND_2100", "BAND_2600", "BAND_3500", "BAND_N71", "BAND_N77", "BAND_N258"]
+      },
+      "doc": "Operating frequency band"
+    },
+    {
+      "name": "technology",
+      "type": {
+        "type": "enum",
+        "name": "RadioTechnology",
+        "symbols": ["LTE", "LTE_A", "NR_NSA", "NR_SA", "UMTS", "GSM"]
+      },
+      "doc": "Radio access technology in use"
+    },
+    {
+      "name": "pci",
+      "type": "int",
+      "doc": "Physical Cell Identity (0-503 for LTE, 0-1007 for NR)"
+    },
+    {
+      "name": "earfcn",
+      "type": "int",
+      "doc": "E-UTRA Absolute Radio Frequency Channel Number"
+    },
+    {
+      "name": "connected_ues",
+      "type": "int",
+      "doc": "Number of User Equipment devices connected to this sector"
+    },
+    {
+      "name": "prb_utilization_pct",
+      "type": "double",
+      "doc": "Physical Resource Block utilization percentage (0-100)"
+    },
+    {
+      "name": "throughput_dl_mbps",
+      "type": "double",
+      "doc": "Downlink throughput in Mbps"
+    },
+    {
+      "name": "throughput_ul_mbps",
+      "type": "double",
+      "doc": "Uplink throughput in Mbps"
+    },
+    {
+      "name": "latitude",
+      "type": "double",
+      "doc": "Tower antenna latitude (WGS84)"
+    },
+    {
+      "name": "longitude",
+      "type": "double",
+      "doc": "Tower antenna longitude (WGS84)"
+    },
+    {
+      "name": "antenna_height_m",
+      "type": "double",
+      "doc": "Antenna height above ground level in meters"
+    },
+    {
+      "name": "antenna_azimuth_deg",
+      "type": "double",
+      "doc": "Antenna boresight azimuth in degrees from true north (0-360)"
+    },
+    {
+      "name": "antenna_tilt_deg",
+      "type": "double",
+      "doc": "Antenna electrical/mechanical downtilt in degrees"
+    },
+    {
+      "name": "interference_level_dbm",
+      "type": "double",
+      "doc": "Measured interference power level in dBm"
+    },
+    {
+      "name": "weather_condition",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Optional weather condition from co-located weather station"
+    },
+    {
+      "name": "temperature_celsius",
+      "type": ["null", "double"],
+      "default": null,
+      "doc": "Ambient temperature at tower site"
+    },
+    {
+      "name": "metadata",
+      "type": ["null", {"type": "map", "values": "string"}],
+      "default": null,
+      "doc": "Additional vendor-specific key-value metadata"
+    }
+  ]
+}

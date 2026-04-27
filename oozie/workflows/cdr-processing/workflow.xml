@@ -1,0 +1,117 @@
+<!--
+  Oozie Workflow: CDR Processing Pipeline
+  Multi-stage CDR processing: parse → enrich → aggregate → analyze
+-->
+<workflow-app name="telco-cdr-processing" xmlns="uri:oozie:workflow:0.5">
+
+    <start to="fork-cdr-jobs"/>
+
+    <!-- Fork: run MR CDR aggregation and Pig enrichment in parallel -->
+    <fork name="fork-cdr-jobs">
+        <path start="cdr-mapreduce-aggregation"/>
+        <path start="pig-cdr-enrichment"/>
+    </fork>
+
+    <!-- Branch 1: MapReduce CDR Aggregation -->
+    <action name="cdr-mapreduce-aggregation">
+        <map-reduce>
+            <resource-manager>${resourceManager}</resource-manager>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>mapred.mapper.class</name>
+                    <value>com.telco.pipeline.mapreduce.cdr.CDRParserMapper</value>
+                </property>
+                <property>
+                    <name>mapred.reducer.class</name>
+                    <value>com.telco.pipeline.mapreduce.cdr.CDRAggregationReducer</value>
+                </property>
+                <property>
+                    <name>mapred.input.dir</name>
+                    <value>/data/raw/cdr/dt=${report_date}</value>
+                </property>
+                <property>
+                    <name>mapred.output.dir</name>
+                    <value>/data/processed/cdr-tower-stats/dt=${report_date}</value>
+                </property>
+                <property>
+                    <name>mapreduce.job.reduces</name>
+                    <value>20</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="join-cdr-jobs"/>
+        <error to="send-failure-email"/>
+    </action>
+
+    <!-- Branch 2: Pig CDR Enrichment -->
+    <action name="pig-cdr-enrichment">
+        <pig>
+            <resource-manager>${resourceManager}</resource-manager>
+            <name-node>${nameNode}</name-node>
+            <script>/opt/telco/pig/cdr_enrichment.pig</script>
+            <param>CDR_INPUT=/data/raw/cdr/dt=${report_date}</param>
+            <param>TOWER_META=/data/dimension/tower-metadata</param>
+            <param>OUTPUT=/data/processed/enriched-cdrs/dt=${report_date}</param>
+        </pig>
+        <ok to="join-cdr-jobs"/>
+        <error to="send-failure-email"/>
+    </action>
+
+    <!-- Join: wait for both branches -->
+    <join name="join-cdr-jobs" to="spark-dropped-call-analysis"/>
+
+    <!-- Step 3: Spark dropped call analysis -->
+    <action name="spark-dropped-call-analysis">
+        <spark xmlns="uri:oozie:spark-action:1.0">
+            <resource-manager>${resourceManager}</resource-manager>
+            <name-node>${nameNode}</name-node>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>DroppedCallAnalysis</name>
+            <class>com.telco.pipeline.spark.batch.DroppedCallAnalysis</class>
+            <jar>/opt/telco/lib/telco-spark.jar</jar>
+            <spark-opts>
+                --executor-memory 4g
+                --num-executors 8
+                --executor-cores 4
+            </spark-opts>
+            <arg>/data/processed/enriched-cdrs/dt=${report_date}</arg>
+            <arg>/data/raw/handoff-events/dt=${report_date}</arg>
+            <arg>/data/processed/signal-quality/dt=${report_date}</arg>
+            <arg>/data/analytics/dropped-call-analysis/dt=${report_date}</arg>
+        </spark>
+        <ok to="hive-dropped-call-report"/>
+        <error to="send-failure-email"/>
+    </action>
+
+    <!-- Step 4: Generate Hive report -->
+    <action name="hive-dropped-call-report">
+        <hive2 xmlns="uri:oozie:hive2-action:1.0">
+            <resource-manager>${resourceManager}</resource-manager>
+            <name-node>${nameNode}</name-node>
+            <jdbc-url>${hive2_jdbc_url}</jdbc-url>
+            <script>/opt/telco/hive/queries/dropped_call_report.hql</script>
+            <param>report_date=${report_date}</param>
+        </hive2>
+        <ok to="end"/>
+        <error to="send-failure-email"/>
+    </action>
+
+    <action name="send-failure-email">
+        <email xmlns="uri:oozie:email-action:0.2">
+            <to>${alert_email}</to>
+            <subject>FAILURE: CDR processing pipeline for ${report_date}</subject>
+            <body>CDR processing failed at ${wf:lastErrorNode()}. Error: ${wf:errorMessage(wf:lastErrorNode())}</body>
+        </email>
+        <ok to="kill"/>
+        <error to="kill"/>
+    </action>
+
+    <kill name="kill">
+        <message>CDR processing failed: ${wf:errorMessage(wf:lastErrorNode())}</message>
+    </kill>
+
+    <end name="end"/>
+
+</workflow-app>

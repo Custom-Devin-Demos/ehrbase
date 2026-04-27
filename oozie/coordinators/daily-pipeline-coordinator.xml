@@ -1,0 +1,69 @@
+<!--
+  Oozie Coordinator: Daily Telco Pipeline
+  Triggers the full processing pipeline daily at 02:00 UTC.
+  Waits for data availability before starting.
+-->
+<coordinator-app name="telco-daily-pipeline"
+    frequency="${coord:days(1)}"
+    start="${start_time}" end="${end_time}" timezone="UTC"
+    xmlns="uri:oozie:coordinator:0.4">
+
+    <controls>
+        <timeout>360</timeout>              <!-- 6 hour timeout -->
+        <concurrency>1</concurrency>        <!-- Only one instance at a time -->
+        <execution>LAST_ONLY</execution>    <!-- Skip missed runs -->
+        <throttle>2</throttle>
+    </controls>
+
+    <!-- Data availability check: wait for raw signal data -->
+    <datasets>
+        <dataset name="raw-signals" frequency="${coord:days(1)}"
+                 initial-instance="${start_time}" timezone="UTC">
+            <uri-template>${nameNode}/data/raw/tower-signals/dt=${YEAR}-${MONTH}-${DAY}</uri-template>
+            <done-flag>_SUCCESS</done-flag>
+        </dataset>
+        <dataset name="raw-cdrs" frequency="${coord:days(1)}"
+                 initial-instance="${start_time}" timezone="UTC">
+            <uri-template>${nameNode}/data/raw/cdr/dt=${YEAR}-${MONTH}-${DAY}</uri-template>
+            <done-flag>_SUCCESS</done-flag>
+        </dataset>
+        <dataset name="raw-handoffs" frequency="${coord:days(1)}"
+                 initial-instance="${start_time}" timezone="UTC">
+            <uri-template>${nameNode}/data/raw/handoff-events/dt=${YEAR}-${MONTH}-${DAY}</uri-template>
+            <done-flag>_SUCCESS</done-flag>
+        </dataset>
+    </datasets>
+
+    <input-events>
+        <data-in name="signals-input" dataset="raw-signals">
+            <instance>${coord:current(0)}</instance>
+        </data-in>
+        <data-in name="cdrs-input" dataset="raw-cdrs">
+            <instance>${coord:current(0)}</instance>
+        </data-in>
+        <data-in name="handoffs-input" dataset="raw-handoffs">
+            <instance>${coord:current(0)}</instance>
+        </data-in>
+    </input-events>
+
+    <action>
+        <workflow>
+            <app-path>${nameNode}/opt/telco/oozie/workflows/signal-aggregation</app-path>
+            <configuration>
+                <property>
+                    <name>report_date</name>
+                    <value>${coord:formatTime(coord:nominalTime(), 'yyyy-MM-dd')}</value>
+                </property>
+                <property>
+                    <name>nameNode</name>
+                    <value>${nameNode}</value>
+                </property>
+                <property>
+                    <name>resourceManager</name>
+                    <value>${resourceManager}</value>
+                </property>
+            </configuration>
+        </workflow>
+    </action>
+
+</coordinator-app>

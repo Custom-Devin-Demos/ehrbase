@@ -1,0 +1,152 @@
+<!--
+  Oozie Workflow: Daily Signal Quality Aggregation
+  Runs the MapReduce signal quality job followed by Spark batch analysis.
+-->
+<workflow-app name="telco-signal-aggregation" xmlns="uri:oozie:workflow:0.5">
+
+    <credentials>
+        <credential name="hive2-cred" type="hive2">
+            <property>
+                <name>hive2.jdbc.url</name>
+                <value>${hive2_jdbc_url}</value>
+            </property>
+            <property>
+                <name>hive2.server.principal</name>
+                <value>${hive_principal}</value>
+            </property>
+        </credential>
+    </credentials>
+
+    <start to="check-input-data"/>
+
+    <!-- Verify input data exists -->
+    <decision name="check-input-data">
+        <switch>
+            <case to="signal-mapreduce">
+                ${fs:exists(concat('/data/raw/tower-signals/dt=', wf:conf('report_date')))}
+            </case>
+            <default to="no-data"/>
+        </switch>
+    </decision>
+
+    <!-- Step 1: MapReduce signal aggregation -->
+    <action name="signal-mapreduce">
+        <map-reduce>
+            <resource-manager>${resourceManager}</resource-manager>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>mapred.mapper.class</name>
+                    <value>com.telco.pipeline.mapreduce.signal.SignalStrengthMapper</value>
+                </property>
+                <property>
+                    <name>mapred.combiner.class</name>
+                    <value>com.telco.pipeline.mapreduce.signal.SignalStrengthCombiner</value>
+                </property>
+                <property>
+                    <name>mapred.reducer.class</name>
+                    <value>com.telco.pipeline.mapreduce.signal.SignalStrengthReducer</value>
+                </property>
+                <property>
+                    <name>mapred.input.dir</name>
+                    <value>/data/raw/tower-signals/dt=${report_date}</value>
+                </property>
+                <property>
+                    <name>mapred.output.dir</name>
+                    <value>/data/processed/signal-quality/dt=${report_date}</value>
+                </property>
+                <property>
+                    <name>mapred.output.key.class</name>
+                    <value>com.telco.pipeline.mapreduce.common.TelcoWritables$TowerSectorKey</value>
+                </property>
+                <property>
+                    <name>mapred.output.value.class</name>
+                    <value>org.apache.hadoop.io.Text</value>
+                </property>
+                <property>
+                    <name>signal.time.bucket.minutes</name>
+                    <value>15</value>
+                </property>
+                <property>
+                    <name>mapreduce.job.reduces</name>
+                    <value>50</value>
+                </property>
+                <property>
+                    <name>mapreduce.output.fileoutputformat.compress</name>
+                    <value>true</value>
+                </property>
+                <property>
+                    <name>mapreduce.output.fileoutputformat.compress.codec</name>
+                    <value>org.apache.hadoop.io.compress.SnappyCodec</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="spark-tower-analysis"/>
+        <error to="send-failure-email"/>
+    </action>
+
+    <!-- Step 2: Spark tower performance analysis -->
+    <action name="spark-tower-analysis">
+        <spark xmlns="uri:oozie:spark-action:1.0">
+            <resource-manager>${resourceManager}</resource-manager>
+            <name-node>${nameNode}</name-node>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>TowerPerformanceAnalyzer</name>
+            <class>com.telco.pipeline.spark.batch.TowerPerformanceAnalyzer</class>
+            <jar>/opt/telco/lib/telco-spark.jar</jar>
+            <spark-opts>
+                --executor-memory 4g
+                --num-executors 10
+                --executor-cores 4
+                --conf spark.sql.shuffle.partitions=200
+                --conf spark.dynamicAllocation.enabled=true
+            </spark-opts>
+            <arg>/data/processed/signal-quality/dt=${report_date}</arg>
+            <arg>/data/processed/cdr-tower-stats/dt=${report_date}</arg>
+            <arg>/data/processed/tower-scorecards/dt=${report_date}</arg>
+        </spark>
+        <ok to="update-hive-partitions"/>
+        <error to="send-failure-email"/>
+    </action>
+
+    <!-- Step 3: Register new Hive partitions -->
+    <action name="update-hive-partitions" cred="hive2-cred">
+        <hive2 xmlns="uri:oozie:hive2-action:1.0">
+            <resource-manager>${resourceManager}</resource-manager>
+            <name-node>${nameNode}</name-node>
+            <jdbc-url>${hive2_jdbc_url}</jdbc-url>
+            <script>/opt/telco/hive/add_partitions.hql</script>
+            <param>report_date=${report_date}</param>
+        </hive2>
+        <ok to="end"/>
+        <error to="send-failure-email"/>
+    </action>
+
+    <action name="no-data">
+        <email xmlns="uri:oozie:email-action:0.2">
+            <to>${alert_email}</to>
+            <subject>Telco Pipeline: No signal data for ${report_date}</subject>
+            <body>No input data found at /data/raw/tower-signals/dt=${report_date}. Pipeline skipped.</body>
+        </email>
+        <ok to="end"/>
+        <error to="end"/>
+    </action>
+
+    <action name="send-failure-email">
+        <email xmlns="uri:oozie:email-action:0.2">
+            <to>${alert_email}</to>
+            <subject>FAILURE: Signal aggregation pipeline for ${report_date}</subject>
+            <body>The signal aggregation workflow failed. Error: ${wf:errorMessage(wf:lastErrorNode())}</body>
+        </email>
+        <ok to="kill"/>
+        <error to="kill"/>
+    </action>
+
+    <kill name="kill">
+        <message>Signal aggregation workflow failed: ${wf:errorMessage(wf:lastErrorNode())}</message>
+    </kill>
+
+    <end name="end"/>
+
+</workflow-app>

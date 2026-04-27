@@ -1,0 +1,203 @@
+{
+  "namespace": "com.telco.pipeline.avro",
+  "type": "record",
+  "name": "TowerMetadata",
+  "doc": "Static and semi-static configuration data for cell tower sites. Updated when tower configuration changes (new hardware, parameter tuning, etc.).",
+  "fields": [
+    {
+      "name": "tower_id",
+      "type": "string",
+      "doc": "Unique cell tower identifier (MCC-MNC-LAC-CID)"
+    },
+    {
+      "name": "site_id",
+      "type": "string",
+      "doc": "Physical site identifier (multiple towers can share a site)"
+    },
+    {
+      "name": "site_name",
+      "type": "string",
+      "doc": "Human-readable site name"
+    },
+    {
+      "name": "mcc",
+      "type": "string",
+      "doc": "Mobile Country Code"
+    },
+    {
+      "name": "mnc",
+      "type": "string",
+      "doc": "Mobile Network Code"
+    },
+    {
+      "name": "lac",
+      "type": "int",
+      "doc": "Location Area Code"
+    },
+    {
+      "name": "cell_id",
+      "type": "int",
+      "doc": "Cell Identity"
+    },
+    {
+      "name": "enodeb_id",
+      "type": "int",
+      "doc": "eNodeB ID for LTE or gNodeB ID for NR"
+    },
+    {
+      "name": "latitude",
+      "type": "double",
+      "doc": "Site latitude (WGS84)"
+    },
+    {
+      "name": "longitude",
+      "type": "double",
+      "doc": "Site longitude (WGS84)"
+    },
+    {
+      "name": "elevation_m",
+      "type": "double",
+      "doc": "Ground elevation above sea level in meters"
+    },
+    {
+      "name": "tower_height_m",
+      "type": "double",
+      "doc": "Tower structure height in meters"
+    },
+    {
+      "name": "tower_type",
+      "type": {
+        "type": "enum",
+        "name": "TowerType",
+        "symbols": ["MACRO", "MICRO", "PICO", "FEMTO", "SMALL_CELL", "DAS", "CRAN"]
+      },
+      "doc": "Cell site type classification"
+    },
+    {
+      "name": "vendor",
+      "type": {
+        "type": "enum",
+        "name": "EquipmentVendor",
+        "symbols": ["ERICSSON", "NOKIA", "SAMSUNG", "HUAWEI", "ZTE", "MAVENIR", "COMMSCOPE"]
+      },
+      "doc": "RAN equipment vendor"
+    },
+    {
+      "name": "hardware_model",
+      "type": "string",
+      "doc": "Equipment model identifier"
+    },
+    {
+      "name": "firmware_version",
+      "type": "string",
+      "doc": "Current firmware version"
+    },
+    {
+      "name": "sectors",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "SectorConfig",
+          "fields": [
+            {"name": "sector_id", "type": "int"},
+            {"name": "azimuth_deg", "type": "double"},
+            {"name": "beamwidth_deg", "type": "double"},
+            {"name": "electrical_tilt_deg", "type": "double"},
+            {"name": "mechanical_tilt_deg", "type": "double"},
+            {"name": "antenna_gain_dbi", "type": "double"},
+            {"name": "max_tx_power_dbm", "type": "double"},
+            {"name": "frequency_bands", "type": {"type": "array", "items": "com.telco.pipeline.avro.FrequencyBand"}},
+            {"name": "technologies", "type": {"type": "array", "items": "com.telco.pipeline.avro.RadioTechnology"}},
+            {"name": "max_connected_ues", "type": "int"},
+            {"name": "mimo_config", "type": "string", "doc": "MIMO configuration e.g., 4x4, 8x8, 64T64R"}
+          ]
+        }
+      },
+      "doc": "Per-sector antenna and radio configuration"
+    },
+    {
+      "name": "neighbor_cells",
+      "type": {"type": "array", "items": "string"},
+      "doc": "List of configured neighbor cell tower IDs for handoff"
+    },
+    {
+      "name": "backhaul_type",
+      "type": {
+        "type": "enum",
+        "name": "BackhaulType",
+        "symbols": ["FIBER", "MICROWAVE", "MILLIMETER_WAVE", "COPPER", "SATELLITE"]
+      },
+      "doc": "Backhaul connection type"
+    },
+    {
+      "name": "backhaul_capacity_mbps",
+      "type": "int",
+      "doc": "Backhaul capacity in Mbps"
+    },
+    {
+      "name": "power_source",
+      "type": {
+        "type": "enum",
+        "name": "PowerSource",
+        "symbols": ["GRID", "SOLAR", "DIESEL_GENERATOR", "HYBRID_SOLAR_DIESEL", "BATTERY_BACKUP", "WIND"]
+      },
+      "doc": "Primary power source"
+    },
+    {
+      "name": "battery_backup_hours",
+      "type": "double",
+      "doc": "Battery backup duration in hours"
+    },
+    {
+      "name": "install_date",
+      "type": "string",
+      "doc": "Installation date (ISO 8601)"
+    },
+    {
+      "name": "last_maintenance_date",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Last maintenance visit date (ISO 8601)"
+    },
+    {
+      "name": "region",
+      "type": "string",
+      "doc": "Geographic region code"
+    },
+    {
+      "name": "market",
+      "type": "string",
+      "doc": "Market area (e.g., metro name)"
+    },
+    {
+      "name": "is_active",
+      "type": "boolean",
+      "doc": "Whether the tower is currently active"
+    },
+    {
+      "name": "indoor_outdoor",
+      "type": {
+        "type": "enum",
+        "name": "Placement",
+        "symbols": ["OUTDOOR", "INDOOR", "MIXED"]
+      },
+      "doc": "Tower placement classification"
+    },
+    {
+      "name": "morphology",
+      "type": {
+        "type": "enum",
+        "name": "Morphology",
+        "symbols": ["DENSE_URBAN", "URBAN", "SUBURBAN", "RURAL", "HIGHWAY", "INDUSTRIAL", "WATER"]
+      },
+      "doc": "Terrain/environment classification"
+    },
+    {
+      "name": "metadata",
+      "type": ["null", {"type": "map", "values": "string"}],
+      "default": null,
+      "doc": "Additional metadata"
+    }
+  ]
+}

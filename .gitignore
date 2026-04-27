@@ -1,0 +1,39 @@
+# Build outputs
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Maven
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# Test data
+test-data/
+*.dat
+*.csv.gz
+
+# Secrets
+*.password
+*.keytab
+secrets/
+
+# Logs
+*.log
+logs/
+
+# Docker volumes
+docker/volumes/

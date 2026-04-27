@@ -1,0 +1,61 @@
+<!--
+  Oozie Bundle: Full Telco Data Pipeline
+  Manages all coordinator jobs for the complete data pipeline.
+-->
+<bundle-app name="telco-data-pipeline-bundle" xmlns="uri:oozie:bundle:0.2">
+
+    <controls>
+        <kick-off-time>${start_time}</kick-off-time>
+    </controls>
+
+    <!-- Signal aggregation pipeline -->
+    <coordinator name="signal-aggregation-coord">
+        <app-path>${nameNode}/opt/telco/oozie/coordinators/daily-pipeline-coordinator.xml</app-path>
+        <configuration>
+            <property>
+                <name>nameNode</name>
+                <value>${nameNode}</value>
+            </property>
+            <property>
+                <name>resourceManager</name>
+                <value>${resourceManager}</value>
+            </property>
+            <property>
+                <name>start_time</name>
+                <value>${start_time}</value>
+            </property>
+            <property>
+                <name>end_time</name>
+                <value>${end_time}</value>
+            </property>
+        </configuration>
+    </coordinator>
+
+    <!-- CDR processing pipeline -->
+    <coordinator name="cdr-processing-coord">
+        <app-path>${nameNode}/opt/telco/oozie/coordinators/daily-pipeline-coordinator.xml</app-path>
+        <configuration>
+            <property>
+                <name>nameNode</name>
+                <value>${nameNode}</value>
+            </property>
+            <property>
+                <name>resourceManager</name>
+                <value>${resourceManager}</value>
+            </property>
+            <property>
+                <name>workflow_path</name>
+                <value>${nameNode}/opt/telco/oozie/workflows/cdr-processing</value>
+            </property>
+            <property>
+                <name>start_time</name>
+                <value>${start_time}</value>
+            </property>
+            <property>
+                <name>end_time</name>
+                <value>${end_time}</value>
+            </property>
+        </configuration>
+    </coordinator>
+
+</bundle-app>
